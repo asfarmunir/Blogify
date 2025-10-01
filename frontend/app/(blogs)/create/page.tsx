@@ -6,6 +6,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
 import toast from "react-hot-toast";
@@ -47,6 +55,7 @@ const CreateBlogPage = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState("");
   const [media, setMedia] = useState<MediaItem[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Check authentication
   useEffect(() => {
@@ -112,7 +121,7 @@ const CreateBlogPage = () => {
     setMedia(updatedMedia);
   };
 
-  const handleSubmit = async (publishNow: boolean = false) => {
+  const handlePublish = async () => {
     if (!title.trim() || !description.trim()) {
       return;
     }
@@ -123,7 +132,7 @@ const CreateBlogPage = () => {
         description: description.trim(),
         media: media.map((item) => ({ url: item.url, alt: item.alt })),
         tags,
-        isPublished: publishNow,
+        isPublished: true,
         likes: [],
       };
 
@@ -146,12 +155,10 @@ const CreateBlogPage = () => {
     }
   };
 
-  const handleSaveDraft = () => {
-    handleSubmit(false);
-  };
-
-  const handlePublish = () => {
-    handleSubmit(true);
+  const handlePreview = () => {
+    if (title.trim() && description.trim()) {
+      setShowPreview(true);
+    }
   };
 
   const isFormValid =
@@ -258,24 +265,94 @@ const CreateBlogPage = () => {
                   )}
                 </Button>
 
-                <Button
-                  onClick={handleSaveDraft}
-                  disabled={!isFormValid || creating}
-                  variant="outline"
-                  className="w-full h-12 text-base"
-                >
-                  {creating ? (
-                    <>
-                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
+                <Dialog open={showPreview} onOpenChange={setShowPreview}>
+                  <DialogTrigger asChild>
+                    <Button
+                      onClick={handlePreview}
+                      disabled={!isFormValid}
+                      variant="outline"
+                      className="w-full h-12 text-base"
+                    >
                       <Eye className="h-5 w-5 mr-2" />
-                      Save Draft
-                    </>
-                  )}
-                </Button>
+                      Preview Blog
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                        Blog Preview
+                      </DialogTitle>
+                      <DialogDescription>
+                        Here&apos;s how your blog will appear to readers
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-6">
+                      {/* Blog Title */}
+                      <div>
+                        <h1 className="text-3xl font-bold text-foreground mb-2">
+                          {title}
+                        </h1>
+                      </div>
+
+                      {/* Tags */}
+                      {tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Media Gallery */}
+                      {media.length > 0 && (
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-foreground">
+                            Media Gallery
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {media.map((item) => (
+                              <div
+                                key={item.id}
+                                className="relative aspect-square rounded-lg overflow-hidden bg-muted"
+                              >
+                                <Image
+                                  src={item.url}
+                                  alt={item.alt}
+                                  width={300}
+                                  height={300}
+                                  className="w-full h-full object-cover"
+                                />
+                                {item.isThumbnail && (
+                                  <div className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1">
+                                    <Star className="h-3 w-3" />
+                                    <span>Thumbnail</span>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Blog Content */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-foreground">
+                          Content
+                        </h3>
+                        <div
+                          className="prose prose-lg max-w-none bg-muted/30 rounded-lg p-6"
+                          dangerouslySetInnerHTML={{ __html: description }}
+                        />
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
 
