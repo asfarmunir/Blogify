@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middleware/auth");
+const {authenticate} = require("../middleware/auth");
 const {
   getAllBlogs,
   getBlogById,
@@ -13,10 +13,10 @@ const {
 router.get("/", getAllBlogs);
 router.get("/:id", getBlogById);
 
-router.post("/", auth, createBlog);
-router.put("/:id", auth, updateBlog);
-router.delete("/:id", auth, deleteBlog);
+router.post("/", authenticate, createBlog);
+router.put("/:id", authenticate, updateBlog);
+router.delete("/:id", authenticate, deleteBlog);
 
-router.post("/:id/like", auth, toggleLike);
+router.post("/:id/like", authenticate, toggleLike);
 
 module.exports = router;
