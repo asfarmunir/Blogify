@@ -12,9 +12,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "VisionDesk - Project Management Reimagined",
+  title: "Blogify - Blogging Reimagined",
   description:
-    "Modern project management platform with intuitive design and powerful features for teams.",
+    "Modern blogging platform with intuitive design and powerful features for writers.",
 };
 
 export default function RootLayout({
