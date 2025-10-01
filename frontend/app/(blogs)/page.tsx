@@ -11,7 +11,6 @@ import {
   PopularTag,
 } from "@/lib/store/features/blogSlice";
 
-// Extended interface for populated blog data from API
 interface PopulatedBlog extends Omit<Blog, "authorId"> {
   authorId?:
     | {
@@ -40,7 +39,13 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const BlogCard = ({ blog }: { blog: PopulatedBlog }) => {
+const BlogCard = ({
+  blog,
+  viewMode,
+}: {
+  blog: PopulatedBlog;
+  viewMode: "grid" | "list";
+}) => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -66,7 +71,11 @@ const BlogCard = ({ blog }: { blog: PopulatedBlog }) => {
     <Card className="group hover:shadow-xl transition-all duration-500 border-0 bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm overflow-hidden">
       <div className="relative">
         {featuredImage ? (
-          <div className="relative h-48 overflow-hidden">
+          <div
+            className={`
+          h-48 ${viewMode === "list" ? "md:h-96" : "h-48"} overflow-hidden
+          `}
+          >
             <Image
               src={featuredImage.url}
               alt={featuredImage.alt || blog.title}
@@ -74,7 +83,7 @@ const BlogCard = ({ blog }: { blog: PopulatedBlog }) => {
               height={200}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
             <div className="absolute top-4 left-4">
               <span className="bg-primary/90 text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
                 Featured
@@ -326,7 +335,6 @@ const BlogsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center space-x-3 mb-4">
             <div className="p-2 rounded-full bg-gradient-to-br from-primary/20 to-primary/30">
@@ -342,9 +350,7 @@ const BlogsPage = () => {
           </p>
         </div>
 
-        {/* Search and Filters */}
         <div className="mb-8 space-y-6">
-          {/* Search Bar */}
           <div className="relative max-w-2xl mx-auto">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -357,7 +363,6 @@ const BlogsPage = () => {
             </div>
           </div>
 
-          {/* Popular Tags */}
           {popularTags && popularTags.length > 0 && (
             <div className="flex flex-col items-center space-y-4">
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -397,7 +402,6 @@ const BlogsPage = () => {
             </div>
           )}
 
-          {/* View Toggle */}
           <div className="flex justify-center">
             <div className="flex items-center space-x-1 bg-muted/50 rounded-lg p-1">
               <Button
@@ -422,7 +426,6 @@ const BlogsPage = () => {
           </div>
         </div>
 
-        {/* Results Info */}
         {pagination && (
           <div className="mb-6 text-center text-sm text-muted-foreground">
             Showing {(pagination.currentPage - 1) * pagination.limit + 1} to{" "}
@@ -442,7 +445,6 @@ const BlogsPage = () => {
           </div>
         )}
 
-        {/* Error State */}
         {error && (
           <div className="text-center py-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
@@ -458,7 +460,6 @@ const BlogsPage = () => {
           </div>
         )}
 
-        {/* Loading State */}
         {loading && (
           <div
             className={`grid gap-6 ${
@@ -473,7 +474,6 @@ const BlogsPage = () => {
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && blogs.length === 0 && !error && (
           <div className="text-center py-12">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-muted/50 rounded-full mb-4">
@@ -502,7 +502,6 @@ const BlogsPage = () => {
           </div>
         )}
 
-        {/* Blog Grid */}
         {!loading && blogs.length > 0 && (
           <>
             <div
@@ -513,11 +512,10 @@ const BlogsPage = () => {
               }`}
             >
               {blogs.map((blog: PopulatedBlog) => (
-                <BlogCard key={blog._id} blog={blog} />
+                <BlogCard key={blog._id} blog={blog} viewMode={viewMode} />
               ))}
             </div>
 
-            {/* Pagination */}
             {pagination && pagination.totalPages > 1 && (
               <Pagination
                 currentPage={pagination.currentPage}

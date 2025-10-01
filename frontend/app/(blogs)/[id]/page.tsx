@@ -29,7 +29,6 @@ import {
   Sparkles,
 } from "lucide-react";
 
-// Extended interface for populated blog data from API
 interface PopulatedBlog {
   _id?: string;
   title: string;
@@ -113,7 +112,6 @@ const ImageModal: React.FC<ImageModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Main Image Display */}
         <div className="relative w-full h-[70vh] flex items-center justify-center bg-black">
           <Image
             src={currentImage.url}
@@ -124,7 +122,6 @@ const ImageModal: React.FC<ImageModalProps> = ({
             priority
           />
 
-          {/* Navigation Controls */}
           {images.length > 1 && (
             <>
               <Button
@@ -146,7 +143,6 @@ const ImageModal: React.FC<ImageModalProps> = ({
             </>
           )}
 
-          {/* Close Button */}
           <Button
             variant="ghost"
             size="icon"
@@ -156,13 +152,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
             <X className="h-6 w-6" />
           </Button>
 
-          {/* Image Counter */}
           <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
             {currentIndex + 1} of {images.length}
           </div>
         </div>
 
-        {/* Thumbnail Strip */}
         {images.length > 1 && (
           <div className="p-4 bg-black/90">
             <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
@@ -226,7 +220,6 @@ const ImageGallery: React.FC<{
         </h3>
 
         <div className="space-y-4">
-          {/* Main Image */}
           <div
             className="relative group cursor-pointer"
             onClick={() => handleImageClick(0)}
@@ -255,7 +248,6 @@ const ImageGallery: React.FC<{
             </div>
           </div>
 
-          {/* Thumbnail Grid */}
           {displayImages.length > 1 && (
             <div className="grid grid-cols-4 gap-3">
               {displayImages.slice(1, 5).map((image, index) => (
@@ -351,7 +343,6 @@ const BlogDetailsPage: React.FC = () => {
           url: window.location.href,
         });
       } catch {
-        // Fallback to clipboard
         navigator.clipboard.writeText(window.location.href);
       }
     } else {
@@ -364,7 +355,6 @@ const BlogDetailsPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="max-w-4xl mx-auto space-y-8">
-            {/* Header Skeleton */}
             <div className="space-y-4">
               <div className="h-8 bg-muted/50 rounded shimmer" />
               <div className="h-12 bg-muted/50 rounded shimmer w-3/4" />
@@ -375,10 +365,8 @@ const BlogDetailsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Image Skeleton */}
             <div className="aspect-video bg-muted/50 rounded-xl shimmer" />
 
-            {/* Content Skeleton */}
             <div className="space-y-4">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="h-4 bg-muted/50 rounded shimmer" />
@@ -423,7 +411,6 @@ const BlogDetailsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Navigation */}
         <div className="mb-8">
           <Link href="/">
             <Button
@@ -437,9 +424,7 @@ const BlogDetailsPage: React.FC = () => {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          {/* Blog Header */}
           <header className="mb-8 space-y-6">
-            {/* Tags */}
             {blog.tags && blog.tags.length > 0 && (
               <div className="flex flex-wrap gap-3">
                 {blog.tags.map((tag, index) => (
@@ -454,12 +439,10 @@ const BlogDetailsPage: React.FC = () => {
               </div>
             )}
 
-            {/* Title */}
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight">
               {blog.title}
             </h1>
 
-            {/* Meta Information */}
             <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
               <div className="flex items-center space-x-2">
                 <User className="h-4 w-4" />
@@ -487,7 +470,6 @@ const BlogDetailsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex items-center space-x-4">
               <Button
                 variant={isLiked ? "default" : "outline"}
@@ -528,14 +510,12 @@ const BlogDetailsPage: React.FC = () => {
             </div>
           </header>
 
-          {/* Image Gallery */}
           {blog.media && blog.media.length > 0 && (
             <div className="mb-12 glass-card p-6 rounded-2xl glow-on-hover">
               <ImageGallery images={blog.media} />
             </div>
           )}
 
-          {/* Blog Content */}
           <article className="mb-12">
             <div className="glass-card rounded-2xl p-8 glow-on-hover">
               <div
@@ -555,7 +535,6 @@ const BlogDetailsPage: React.FC = () => {
             </div>
           </article>
 
-          {/* Author Info */}
           {typeof blog.authorId === "object" &&
             blog.authorId &&
             "name" in blog.authorId && (
