@@ -21,6 +21,25 @@ export interface Blog {
   updatedAt?: string;
 }
 
+export interface BlogPagination {
+  currentPage: number;
+  totalPages: number;
+  totalBlogs: number;
+  limit: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export interface BlogFilters {
+  search: string | null;
+  tag: string | null;
+}
+
+export interface PopularTag {
+  tag: string;
+  count: number;
+}
+
 export interface BlogState {
   blogs: Blog[];
   currentBlog: Blog | null;
@@ -30,7 +49,10 @@ export interface BlogState {
   deleting: boolean;
   uploadingImages: boolean;
   error: string | null;
-  totalBlogs: number;
+  pagination: BlogPagination | null;
+  filters: BlogFilters | null;
+  popularTags: PopularTag[];
+  loadingTags: boolean;
 }
 
 // Cloudinary upload function
@@ -175,6 +197,21 @@ export const deleteBlog = createAsyncThunk(
   }
 );
 
+export const fetchPopularTags = createAsyncThunk(
+  'blog/fetchPopularTags',
+  async (limit: number = 20, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_BASE}/blogs/tags/popular?limit=${limit}`);
+      return response.data.data;
+    } catch (error) {
+      const message = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response: { data: { message: string } } }).response?.data?.message
+        : 'Failed to fetch popular tags';
+      return rejectWithValue(message);
+    }
+  }
+);
+
 export const toggleLike = createAsyncThunk(
   'blog/toggleLike',
   async (id: string, { rejectWithValue }) => {
@@ -209,7 +246,10 @@ const initialState: BlogState = {
   deleting: false,
   uploadingImages: false,
   error: null,
-  totalBlogs: 0,
+  pagination: null,
+  filters: null,
+  popularTags: [],
+  loadingTags: false,
 };
 
 // Slice
@@ -230,7 +270,8 @@ const blogSlice = createSlice({
       state.blogs = [];
       state.currentBlog = null;
       state.error = null;
-      state.totalBlogs = 0;
+      state.pagination = null;
+      state.filters = null;
     }
   },
   extraReducers: (builder) => {
@@ -257,7 +298,9 @@ const blogSlice = createSlice({
       .addCase(createBlog.fulfilled, (state, action) => {
         state.creating = false;
         state.blogs.unshift(action.payload);
-        state.totalBlogs += 1;
+        if (state.pagination) {
+          state.pagination.totalBlogs += 1;
+        }
       })
       .addCase(createBlog.rejected, (state, action) => {
         state.creating = false;
@@ -272,8 +315,9 @@ const blogSlice = createSlice({
       })
       .addCase(fetchBlogs.fulfilled, (state, action) => {
         state.loading = false;
-        state.blogs = action.payload;
-        state.totalBlogs = action.payload.length;
+        state.blogs = action.payload.data || action.payload;
+        state.pagination = action.payload.pagination || null;
+        state.filters = action.payload.filters || null;
       })
       .addCase(fetchBlogs.rejected, (state, action) => {
         state.loading = false;
@@ -328,7 +372,9 @@ const blogSlice = createSlice({
         if (state.currentBlog && state.currentBlog._id === action.payload) {
           state.currentBlog = null;
         }
-        state.totalBlogs -= 1;
+        if (state.pagination) {
+          state.pagination.totalBlogs -= 1;
+        }
       })
       .addCase(deleteBlog.rejected, (state, action) => {
         state.deleting = false;
@@ -347,6 +393,21 @@ const blogSlice = createSlice({
         }
       })
       .addCase(toggleLike.rejected, (state, action) => {
+        state.error = action.payload as string;
+      });
+
+    // Fetch Popular Tags
+    builder
+      .addCase(fetchPopularTags.pending, (state) => {
+        state.loadingTags = true;
+        state.error = null;
+      })
+      .addCase(fetchPopularTags.fulfilled, (state, action) => {
+        state.loadingTags = false;
+        state.popularTags = action.payload;
+      })
+      .addCase(fetchPopularTags.rejected, (state, action) => {
+        state.loadingTags = false;
         state.error = action.payload as string;
       });
   },

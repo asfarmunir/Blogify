@@ -7,10 +7,12 @@ const {
   createBlog,
   updateBlog,
   deleteBlog,
-  toggleLike
+  toggleLike,
+  getPopularTags
 } = require("../controllers/blogController");
 
 router.get("/", getAllBlogs);
+router.get("/tags/popular", getPopularTags);
 router.get("/:id", getBlogById);
 
 router.post("/", authenticate, createBlog);

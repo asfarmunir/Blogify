@@ -2,13 +2,61 @@ const { Blog } = require("../models");
 
 const getAllBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.findPublished()
+    const { page = 1, limit = 10, search, tag } = req.query;
+    
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+    
+    let query = { isPublished: true };
+    
+    if (search) {
+        query.$text = { $search: search };
+    }
+    
+    if (tag) {
+        query.tags = { $in: [tag.toLowerCase()] };
+    }
+    
+    console.log("🚀 ~ getAllBlogs ~ query:", query)
+    let findQuery = Blog.find(query)
       .populate('authorId', 'name email')
       .select('-__v');
     
+    if (search) {
+      findQuery = findQuery
+        .select({ score: { $meta: "textScore" } })
+        .sort({ score: { $meta: "textScore" }, publishedAt: -1 });
+    } else {
+      findQuery = findQuery.sort({ publishedAt: -1 });
+    }
+    
+    // Execute queries in parallel for better performance
+    const [blogs, totalBlogs] = await Promise.all([
+      findQuery.skip(skip).limit(limitNum),
+      Blog.countDocuments(query)
+    ]);
+    
+    // Calculate pagination info
+    const totalPages = Math.ceil(totalBlogs / limitNum);
+    const hasNextPage = pageNum < totalPages;
+    const hasPrevPage = pageNum > 1;
+    
     res.json({
       success: true,
-      data: blogs
+      data: blogs,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalBlogs,
+        limit: limitNum,
+        hasNextPage,
+        hasPrevPage
+      },
+      filters: {
+        search: search || null,
+        tag: tag || null
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -199,11 +247,39 @@ const toggleLike = async (req, res) => {
   }
 };
 
+const getPopularTags = async (req, res) => {
+  try {
+    const { limit = 20 } = req.query;
+    
+    // Aggregate to get tag counts from published blogs
+    const popularTags = await Blog.aggregate([
+      { $match: { isPublished: true } },
+      { $unwind: "$tags" },
+      { $group: { _id: "$tags", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: parseInt(limit, 10) },
+      { $project: { tag: "$_id", count: 1, _id: 0 } }
+    ]);
+
+    res.json({
+      success: true,
+      data: popularTags
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch popular tags",
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllBlogs,
   getBlogById,
   createBlog,
   updateBlog,
   deleteBlog,
-  toggleLike
+  toggleLike,
+  getPopularTags
 };
