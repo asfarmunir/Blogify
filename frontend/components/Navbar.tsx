@@ -42,7 +42,7 @@ export const Navbar = () => {
             </Link>
             <div className="hidden md:flex items-center space-x-8">
               <Link
-                href="/blogs"
+                href="/"
                 className="text-base lg:text-lg font-medium transition-colors hover:text-primary text-foreground"
               >
                 Blogs

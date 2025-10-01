@@ -8,7 +8,18 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
- 
+
+  // remotePatterns: [
+  //   {
+  //     protocol: "https",
+  //     hostname: "res.cloudinary.com",
+  //     port: "",
+  //     pathname: "/unionwealthmanagement/**",
+  //   },
+  // ],
+  images: {
+    domains : ["res.cloudinary.com", "images.unsplash.com"],
+  },
 };
 
 export default nextConfig;
