@@ -313,7 +313,9 @@ const BlogDetailsPage: React.FC = () => {
     (state) => state.blog
   );
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  console.log("🚀 ~ BlogDetailsPage ~ user:", user);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
 
   const blogId = params.id as string;
 
@@ -337,9 +339,14 @@ const BlogDetailsPage: React.FC = () => {
     return Math.ceil(wordCount / wordsPerMinute);
   };
 
-  const handleLike = () => {
-    if (isAuthenticated && blogId) {
-      dispatch(toggleLike(blogId));
+  const handleLike = async () => {
+    if (isAuthenticated && blogId && !isLiking) {
+      setIsLiking(true);
+      try {
+        await dispatch(toggleLike(blogId));
+      } finally {
+        setIsLiking(false);
+      }
     }
   };
 
@@ -376,7 +383,7 @@ const BlogDetailsPage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="space-y-4">
               <div className="h-8 bg-muted/50 rounded shimmer" />
@@ -423,12 +430,24 @@ const BlogDetailsPage: React.FC = () => {
   }
 
   const blog = currentBlog as PopulatedBlog;
+
   const userId = user
     ? (user as { _id?: string; id?: string })._id ||
       (user as { _id?: string; id?: string }).id ||
       ""
     : "";
-  const isLiked = user && blog.likes.includes(userId);
+
+  const isLiked =
+    user &&
+    userId &&
+    blog.likes &&
+    (blog.likes.includes(userId) ||
+      blog.likes.some((like: string | { _id?: string; id?: string }) =>
+        typeof like === "object"
+          ? like._id === userId || like.id === userId
+          : like === userId
+      ));
+
   const readingTime = calculateReadingTime(blog.description);
 
   const isOwner =
@@ -441,7 +460,7 @@ const BlogDetailsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <div className="mb-8">
           <Link href="/">
             <Button
@@ -501,23 +520,27 @@ const BlogDetailsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               <Button
                 variant={isLiked ? "default" : "outline"}
                 size="lg"
                 onClick={handleLike}
-                disabled={!isAuthenticated}
-                className={`flex items-center space-x-3 px-6 py-3 rounded-full transition-all duration-300 ${
+                disabled={!isAuthenticated || isLiking}
+                className={`flex items-center space-x-2 sm:space-x-3 px-3 py-2 sm:px-6 sm:py-3 rounded-full transition-all duration-300 text-sm sm:text-base ${
                   isLiked
                     ? "bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 shadow-lg shadow-red-500/25"
                     : "glass-card glow-on-hover hover:bg-red-50 dark:hover:bg-red-950/20"
-                }`}
+                } ${isLiking ? "opacity-70 cursor-not-allowed" : ""}`}
               >
-                <Heart
-                  className={`h-5 w-5 ${
-                    isLiked ? "fill-current text-white" : "text-red-500"
-                  }`}
-                />
+                {isLiking ? (
+                  <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-current" />
+                ) : (
+                  <Heart
+                    className={`h-4 w-4 sm:h-5 sm:w-5 ${
+                      isLiked ? "fill-current text-white" : "text-red-500"
+                    }`}
+                  />
+                )}
                 <span
                   className={`font-medium ${
                     isLiked ? "text-white" : "text-red-500"
@@ -525,18 +548,22 @@ const BlogDetailsPage: React.FC = () => {
                 >
                   {blog.likes.length}
                 </span>
-                <span className={isLiked ? "text-white" : "text-foreground"}>
-                  {isLiked ? "Liked" : "Like"}
+                <span
+                  className={`hidden sm:inline ${
+                    isLiked ? "text-white" : "text-foreground"
+                  }`}
+                >
+                  {isLiking ? "" : isLiked ? "Liked" : "Like"}
                 </span>
               </Button>
               <Button
                 variant="outline"
                 size="lg"
                 onClick={handleShare}
-                className="flex items-center space-x-3 px-6 py-3 rounded-full glass-card glow-on-hover hover:bg-primary/5"
+                className="flex items-center space-x-2 sm:space-x-3 px-3 py-2 sm:px-6 sm:py-3 rounded-full glass-card glow-on-hover hover:bg-primary/5 text-sm sm:text-base"
               >
-                <Share2 className="h-5 w-5 text-primary" />
-                <span className="font-medium">Share</span>
+                <Share2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                <span className="font-medium hidden sm:inline">Share</span>
               </Button>
 
               {isOwner && (
@@ -545,20 +572,24 @@ const BlogDetailsPage: React.FC = () => {
                     variant="outline"
                     size="lg"
                     onClick={handleEdit}
-                    className="flex items-center space-x-3 px-6 py-3 rounded-full glass-card glow-on-hover hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                    className="flex items-center space-x-2 sm:space-x-3 px-3 py-2 sm:px-6 sm:py-3 rounded-full glass-card glow-on-hover hover:bg-blue-50 dark:hover:bg-blue-950/20 text-sm sm:text-base"
                   >
-                    <Edit3 className="h-5 w-5 text-blue-600" />
-                    <span className="font-medium text-blue-600">Edit</span>
+                    <Edit3 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                    <span className="font-medium text-blue-600 hidden sm:inline">
+                      Edit
+                    </span>
                   </Button>
 
                   <Button
                     variant="outline"
                     size="lg"
                     onClick={() => setDeleteModalOpen(true)}
-                    className="flex items-center space-x-3 px-6 py-3 rounded-full glass-card glow-on-hover hover:bg-red-50 dark:hover:bg-red-950/20"
+                    className="flex items-center space-x-2 sm:space-x-3 px-3 py-2 sm:px-6 sm:py-3 rounded-full glass-card glow-on-hover hover:bg-red-50 dark:hover:bg-red-950/20 text-sm sm:text-base"
                   >
-                    <Trash2 className="h-5 w-5 text-red-600" />
-                    <span className="font-medium text-red-600">Delete</span>
+                    <Trash2 className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
+                    <span className="font-medium text-red-600 hidden sm:inline">
+                      Delete
+                    </span>
                   </Button>
                 </>
               )}
@@ -627,7 +658,7 @@ const BlogDetailsPage: React.FC = () => {
       </div>
 
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent className="glass-card border-red-200 dark:border-red-800">
+        <DialogContent className=" border-red-200 dark:border-red-800">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-3 text-red-600">
               <AlertTriangle className="h-6 w-6" />
