@@ -57,15 +57,16 @@ export const useAuth = () => {
       dispatch(loginStart())
       
       const response = await authApi.login({ email, password })
-      localStorage.setItem('token', response.accessToken)
+      console.log("🚀 ~ login ~ response:", response)
+      localStorage.setItem('token', response.data.accessToken)
       dispatch(loginSuccess({ 
-        user: response.user, 
-        accessToken: response.accessToken, 
-        refreshToken: response.refreshToken 
+        user: response.data.user, 
+        accessToken: response.data.accessToken, 
+        refreshToken: response.data.refreshToken 
       }))
       
-      toast.success(`Welcome back, ${response.user.name}!`, { id: loadingToast })
-      return { success: true as const, user: response.user }
+      toast.success(`Welcome back, ${response.data.user.name}!`, { id: loadingToast })
+      return { success: true as const, user: response.data.user }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed'
       dispatch(loginFailure(errorMessage))
@@ -81,14 +82,14 @@ export const useAuth = () => {
       dispatch(loginStart())
       
       const response = await authApi.register({ name, email, password })
-      localStorage.setItem('token', response.accessToken)
-      dispatch(loginSuccess({ 
-        user: response.user, 
-        accessToken: response.accessToken, 
-        refreshToken: response.refreshToken 
+      localStorage.setItem('token', response.data.accessToken)
+      dispatch(loginSuccess({
+        user: response.data.user,
+        accessToken: response.data.accessToken,
+        refreshToken: response.data.refreshToken
       }))
-      
-      toast.success(`Welcome to VisionDesk, ${response.user.name}! 🎉`, { id: loadingToast })
+
+      toast.success(`Welcome to VisionDesk, ${response.data.user.name}! 🎉`, { id: loadingToast })
       return { success: true }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Registration failed'

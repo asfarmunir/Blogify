@@ -58,12 +58,7 @@ export function LoginForm({ className, onToggleMode }: LoginFormProps) {
     const result = await login(formData.email, formData.password);
 
     if (result.success) {
-      const role = result.user.role;
-      let target = "/";
-      if (role === "admin") target = "/dashboard";
-      else if (role === "moderator") target = "/projects";
-      else target = "/user/projects"; // normal user
-      router.push(target);
+      router.push("/blogs");
     }
   };
 

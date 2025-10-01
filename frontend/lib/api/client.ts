@@ -1,170 +1,28 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'
 
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status?: number,
-    public data?: unknown
-  ) {
-    super(message)
-    this.name = 'ApiError'
+// Simple auth headers helper
+export const getAuthHeaders = () => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` })
   }
 }
 
-interface RequestOptions extends RequestInit {
-  params?: Record<string, string>
-}
-
-class ApiClient {
-  private baseURL: string
-
-  constructor(baseURL: string) {
-    this.baseURL = baseURL
-  }
-
-  private getAuthToken(): string | null {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('token')
+// Simple API call with auth
+export const apiCall = async (endpoint: string, options: RequestInit = {}) => {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      ...getAuthHeaders(),
+      ...options.headers
     }
-    return null
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Request failed' }))
+    throw new Error(error.message || `HTTP ${response.status}`)
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestOptions = {}
-  ): Promise<T> {
-    const { params, ...fetchOptions } = options
-    
-    let url = `${this.baseURL}${endpoint}`
-    if (params) {
-      const searchParams = new URLSearchParams(params)
-      url += `?${searchParams.toString()}`
-    }
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...((fetchOptions.headers as Record<string, string>) || {}),
-    }
-
-    const token = this.getAuthToken()
-    if (token) {
-      headers.Authorization = `Bearer ${token}`
-    }
-
-    try {
-      const response = await fetch(url, {
-        ...fetchOptions,
-        headers,
-      })
-
-      let data
-      const contentType = response.headers.get('content-type')
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json()
-      } else {
-        data = await response.text()
-      }
-
-      if (!response.ok) {
-        throw new ApiError(
-          data?.message || `HTTP ${response.status}: ${response.statusText}`,
-          response.status,
-          data
-        )
-      }
-
-      return data?.data || data
-    } catch (error) {
-      if (error instanceof ApiError) {
-        throw error
-      }
-      throw new ApiError(
-        error instanceof Error ? error.message : 'Network error occurred'
-      )
-    }
-  }
-
-  async get<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET', params })
-  }
-
-  async post<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
-    })
-  }
-
-  async put<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
-    })
-  }
-
-  async patch<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: 'PATCH',
-      body: data ? JSON.stringify(data) : undefined,
-    })
-  }
-
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' })
-  }
-
-  
-}
-
-export const apiClient = new ApiClient(API_BASE_URL)
-
-export interface ApiResponse<T = unknown> {
-  success: boolean
-  message?: string
-  data: T
-}
-
-export interface PaginatedResponse<T> {
-  success: boolean
-  data: {
-    items: T[]
-    pagination: {
-      currentPage: number
-      totalPages: number
-      totalItems: number
-      hasNextPage: boolean
-      hasPrevPage: boolean
-    }
-  }
-}
-
-export const handleApiError = (error: unknown): string => {
-  if (error instanceof ApiError) {
-    return error.message
-  }
-  if (error instanceof Error) {
-    return error.message
-  }
-  return 'An unexpected error occurred'
-}
-
-export const tokenStorage = {
-  get: (): string | null => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('token')
-    }
-    return null
-  },
-  
-  set: (token: string): void => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('token', token)
-    }
-  },
-  
-  remove: (): void => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token')
-    }
-  },
+  return response.json()
 }

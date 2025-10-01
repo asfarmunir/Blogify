@@ -1,4 +1,4 @@
-import { apiClient } from './client'
+import { apiCall } from './client'
 import { User } from '../store/features/authSlice'
 
 export interface LoginCredentials {
@@ -13,10 +13,14 @@ export interface RegisterData {
 }
 
 export interface AuthResponse {
+  data: {
   user: User
   accessToken: string
   refreshToken: string
   expiresIn: string
+  },
+  message: string,
+  statusCode: number
 }
 
 export interface TokenValidationResponse {
@@ -26,16 +30,22 @@ export interface TokenValidationResponse {
 
 export const authApi = {
   login: (credentials: LoginCredentials): Promise<AuthResponse> =>
-    apiClient.post('/auth/login', credentials),
+    apiCall('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials)
+    }),
 
   register: (data: RegisterData): Promise<AuthResponse> =>
-    apiClient.post('/auth/register', data),
+    apiCall('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
 
   logout: (): Promise<void> =>
-    apiClient.post('/auth/logout'),
+    apiCall('/auth/logout', { method: 'POST' }),
 
   validateToken: (): Promise<TokenValidationResponse> =>
-    apiClient.get('/auth/verify'),
+    apiCall('/auth/verify', { method: 'GET' }),
 }
 
 export default authApi
