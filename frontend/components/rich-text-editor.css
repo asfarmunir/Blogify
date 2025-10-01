@@ -1,6 +1,6 @@
 /* Rich Text Editor Styles */
 .rich-text-editor .ProseMirror {
-  outline: none;
+  outline: none !important;
   border: none;
   padding: 1.5rem;
   min-height: 400px;
@@ -8,6 +8,11 @@
   font-size: 16px;
   color: hsl(var(--foreground));
   background: transparent;
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
 }
 
 @media (min-width: 1024px) {
@@ -212,7 +217,138 @@
 
 /* Selection */
 .rich-text-editor .ProseMirror ::selection {
-  background: hsl(var(--primary))/20;
+  background: hsl(var(--primary) / 0.3) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.rich-text-editor .ProseMirror::-moz-selection {
+  background: hsl(var(--primary) / 0.3) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+/* Alternative fallback selection colors */
+.rich-text-editor .ProseMirror {
+  caret-color: hsl(var(--primary)) !important;
+}
+
+/* More specific selection targeting */
+.rich-text-editor .ProseMirror p::selection,
+.rich-text-editor .ProseMirror h1::selection,
+.rich-text-editor .ProseMirror h2::selection,
+.rich-text-editor .ProseMirror h3::selection,
+.rich-text-editor .ProseMirror h4::selection,
+.rich-text-editor .ProseMirror h5::selection,
+.rich-text-editor .ProseMirror h6::selection,
+.rich-text-editor .ProseMirror strong::selection,
+.rich-text-editor .ProseMirror em::selection,
+.rich-text-editor .ProseMirror u::selection,
+.rich-text-editor .ProseMirror s::selection,
+.rich-text-editor .ProseMirror span::selection {
+  background: rgba(59, 130, 246, 0.4) !important;
+  color: inherit !important;
+}
+
+.rich-text-editor .ProseMirror p::-moz-selection,
+.rich-text-editor .ProseMirror h1::-moz-selection,
+.rich-text-editor .ProseMirror h2::-moz-selection,
+.rich-text-editor .ProseMirror h3::-moz-selection,
+.rich-text-editor .ProseMirror h4::-moz-selection,
+.rich-text-editor .ProseMirror h5::-moz-selection,
+.rich-text-editor .ProseMirror h6::-moz-selection,
+.rich-text-editor .ProseMirror strong::-moz-selection,
+.rich-text-editor .ProseMirror em::-moz-selection,
+.rich-text-editor .ProseMirror u::-moz-selection,
+.rich-text-editor .ProseMirror s::-moz-selection,
+.rich-text-editor .ProseMirror span::-moz-selection {
+  background: rgba(59, 130, 246, 0.4) !important;
+  color: inherit !important;
+}
+
+/* Ensure text is selectable */
+.rich-text-editor .ProseMirror * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+/* Fix for any potential CSS conflicts */
+.rich-text-editor .ProseMirror p,
+.rich-text-editor .ProseMirror h1,
+.rich-text-editor .ProseMirror h2,
+.rich-text-editor .ProseMirror h3,
+.rich-text-editor .ProseMirror h4,
+.rich-text-editor .ProseMirror h5,
+.rich-text-editor .ProseMirror h6 {
+  cursor: text;
+  user-select: text;
+}
+
+/* Force selection visibility with high contrast colors */
+.rich-text-editor .ProseMirror {
+  position: relative;
+}
+
+/* Dark mode selection */
+@media (prefers-color-scheme: dark) {
+  .rich-text-editor .ProseMirror ::selection {
+    background: rgba(96, 165, 250, 0.4) !important;
+    color: #ffffff !important;
+  }
+  
+  .rich-text-editor .ProseMirror::-moz-selection {
+    background: rgba(96, 165, 250, 0.4) !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Light mode selection */
+@media (prefers-color-scheme: light) {
+  .rich-text-editor .ProseMirror ::selection {
+    background: rgba(59, 130, 246, 0.3) !important;
+    color: #000000 !important;
+  }
+  
+  .rich-text-editor .ProseMirror::-moz-selection {
+    background: rgba(59, 130, 246, 0.3) !important;
+    color: #000000 !important;
+  }
+}
+
+/* Fallback with system colors and high visibility */
+.rich-text-editor .ProseMirror {
+  --selection-bg: rgba(59, 130, 246, 0.4);
+  --selection-text: inherit;
+}
+
+/* Universal selection override - very visible */
+.rich-text-editor .ProseMirror ::selection {
+  background: #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.4) !important;
+  color: inherit !important;
+  text-shadow: none !important;
+}
+
+.rich-text-editor .ProseMirror::-moz-selection {
+  background: #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.4) !important;
+  color: inherit !important;
+  text-shadow: none !important;
+}
+
+/* Override any inherited selection styles */
+.rich-text-editor * {
+  caret-color: #3b82f6 !important;
+}
+
+.rich-text-editor *::selection {
+  background: rgba(59, 130, 246, 0.4) !important;
+  color: inherit !important;
+}
+
+.rich-text-editor *::-moz-selection {
+  background: rgba(59, 130, 246, 0.4) !important;
+  color: inherit !important;
 }
 
 /* Placeholder */
@@ -237,27 +373,87 @@
   text-align: right;
 }
 
-/* Strong and emphasis */
-.rich-text-editor .ProseMirror strong {
-  font-weight: 700;
+/* Text formatting styles */
+.rich-text-editor .ProseMirror strong,
+.rich-text-editor .ProseMirror b {
+  font-weight: 700 !important;
   color: hsl(var(--foreground));
 }
 
-.rich-text-editor .ProseMirror em {
-  font-style: italic;
+/* Custom font sizes */
+.rich-text-editor .ProseMirror [style*="font-size"] {
+  line-height: 1.4 !important;
+}
+
+/* Ensure font size attributes apply correctly */
+.rich-text-editor .ProseMirror *[style*="font-size: 12px"],
+.rich-text-editor .ProseMirror span[style*="font-size: 12px"] {
+  font-size: 12px !important;
+}
+
+.rich-text-editor .ProseMirror *[style*="font-size: 14px"],
+.rich-text-editor .ProseMirror span[style*="font-size: 14px"] {
+  font-size: 14px !important;
+}
+
+.rich-text-editor .ProseMirror *[style*="font-size: 16px"],
+.rich-text-editor .ProseMirror span[style*="font-size: 16px"] {
+  font-size: 16px !important;
+}
+
+.rich-text-editor .ProseMirror *[style*="font-size: 18px"],
+.rich-text-editor .ProseMirror span[style*="font-size: 18px"] {
+  font-size: 18px !important;
+}
+
+.rich-text-editor .ProseMirror *[style*="font-size: 20px"],
+.rich-text-editor .ProseMirror span[style*="font-size: 20px"] {
+  font-size: 20px !important;
+}
+
+.rich-text-editor .ProseMirror *[style*="font-size: 24px"],
+.rich-text-editor .ProseMirror span[style*="font-size: 24px"] {
+  font-size: 24px !important;
+}
+
+.rich-text-editor .ProseMirror *[style*="font-size: 28px"],
+.rich-text-editor .ProseMirror span[style*="font-size: 28px"] {
+  font-size: 28px !important;
+}
+
+.rich-text-editor .ProseMirror *[style*="font-size: 32px"],
+.rich-text-editor .ProseMirror span[style*="font-size: 32px"] {
+  font-size: 32px !important;
+}
+
+.rich-text-editor .ProseMirror *[style*="font-size: 36px"],
+.rich-text-editor .ProseMirror span[style*="font-size: 36px"] {
+  font-size: 36px !important;
+}
+
+.rich-text-editor .ProseMirror *[style*="font-size: 48px"],
+.rich-text-editor .ProseMirror span[style*="font-size: 48px"] {
+  font-size: 48px !important;
+}
+
+.rich-text-editor .ProseMirror em,
+.rich-text-editor .ProseMirror i {
+  font-style: italic !important;
   color: hsl(var(--foreground));
 }
 
 /* Strike through */
-.rich-text-editor .ProseMirror s {
-  text-decoration: line-through;
+.rich-text-editor .ProseMirror s,
+.rich-text-editor .ProseMirror strike {
+  text-decoration: line-through !important;
   color: hsl(var(--muted-foreground));
 }
 
 /* Underline */
 .rich-text-editor .ProseMirror u {
-  text-decoration: underline;
+  text-decoration: underline !important;
   text-underline-offset: 2px;
+  color: hsl(var(--foreground));
 }
 
 /* Focus styles */

@@ -11,7 +11,6 @@ import {
   ImagePlus,
   X,
   Star,
-  Save,
   Eye,
   Upload,
   Tag,
@@ -85,11 +84,6 @@ const CreateBlogPage = () => {
     setMedia(updatedMedia);
   };
 
-  const handleSaveDraft = () => {
-    // TODO: Implement save draft functionality
-    console.log("Saving draft...");
-  };
-
   const handlePublish = () => {
     // TODO: Implement publish functionality
     console.log("Publishing blog...");
@@ -102,7 +96,7 @@ const CreateBlogPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 sm:px-0 py-8 lg:py-12 max-w-7xl 2xl:max-w-[110rem]">
+      <div className="container mx-auto px-4 sm:px-0 pb-8 lg:pb-12 max-w-7xl 2xl:max-w-[110rem]">
         {/* Header */}
         <div className="mb-8 lg:mb-12">
           <div className="flex items-center space-x-3 mb-4">
@@ -119,9 +113,9 @@ const CreateBlogPage = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
+        <div className="grid md:grid-cols-5 gap-8 md:gap-12">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="md:col-span-3 space-y-8">
             {/* Title Section */}
             <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm">
               <CardHeader className="pb-4">
@@ -159,15 +153,114 @@ const CreateBlogPage = () => {
                   onChange={setDescription}
                   placeholder="Start writing your story... Use the toolbar above to format your text, add links, images, and more!"
                 />
-                <div className="p-4 border-t bg-muted/20">
-                  <p className="text-sm text-muted-foreground">
-                    ✨ Rich text formatting • 🔗 Links • 📷 Images • 📝 Lists •
-                    💻 Code blocks
-                  </p>
-                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-8 md:col-span-2   ">
+            {/* Action Buttons */}
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm">
+              <CardContent className="p-[30px] space-y-3">
+                <Button
+                  onClick={handlePublish}
+                  className="w-full h-12 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                >
+                  <Sparkles className="h-5 w-5 mr-2" />
+                  Publish Blog
+                </Button>
+                <Button
+                  onClick={handlePreview}
+                  variant="outline"
+                  className="w-full h-12 text-base"
+                >
+                  <Eye className="h-5 w-5 mr-2" />
+                  Preview
+                </Button>
               </CardContent>
             </Card>
 
+            {/* Blog Stats */}
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm">
+              <CardContent className="pt-6">
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Word count:</span>
+                    <span className="font-medium">
+                      {
+                        description
+                          .replace(/<[^>]*>/g, "")
+                          .split(" ")
+                          .filter((word) => word.length > 0).length
+                      }
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Reading time:</span>
+                    <span className="font-medium">
+                      ~
+                      {Math.ceil(
+                        description
+                          .replace(/<[^>]*>/g, "")
+                          .split(" ")
+                          .filter((word) => word.length > 0).length / 200
+                      )}{" "}
+                      min
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Images:</span>
+                    <span className="font-medium">{media.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Tags:</span>
+                    <span className="font-medium">{tags.length}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            {/* Tags Section */}
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center space-x-2 text-xl">
+                  <Tag className="h-5 w-5 text-primary" />
+                  <span>Tags</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="Add a tag..."
+                    value={currentTag}
+                    onChange={(e) => setCurrentTag(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
+                    className="border-0 bg-muted/50 focus:bg-muted/80 transition-all duration-300"
+                  />
+                  <Button onClick={handleAddTag} size="sm" className="px-4">
+                    Add
+                  </Button>
+                </div>
+
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                      <div
+                        key={tag}
+                        className="bg-gradient-to-r from-primary/20 to-primary/30 text-primary px-3 py-1 rounded-full text-sm flex items-center space-x-1 group hover:from-primary/30 hover:to-primary/40 transition-all duration-300"
+                      >
+                        <span>#{tag}</span>
+                        <button
+                          onClick={() => handleRemoveTag(tag)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
             {/* Media Upload Section */}
             <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm">
               <CardHeader className="pb-4">
@@ -260,121 +353,6 @@ const CreateBlogPage = () => {
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-8">
-            {/* Tags Section */}
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center space-x-2 text-xl">
-                  <Tag className="h-5 w-5 text-primary" />
-                  <span>Tags</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex space-x-2">
-                  <Input
-                    placeholder="Add a tag..."
-                    value={currentTag}
-                    onChange={(e) => setCurrentTag(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
-                    className="border-0 bg-muted/50 focus:bg-muted/80 transition-all duration-300"
-                  />
-                  <Button onClick={handleAddTag} size="sm" className="px-4">
-                    Add
-                  </Button>
-                </div>
-
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((tag) => (
-                      <div
-                        key={tag}
-                        className="bg-gradient-to-r from-primary/20 to-primary/30 text-primary px-3 py-1 rounded-full text-sm flex items-center space-x-1 group hover:from-primary/30 hover:to-primary/40 transition-all duration-300"
-                      >
-                        <span>#{tag}</span>
-                        <button
-                          onClick={() => handleRemoveTag(tag)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Action Buttons */}
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm">
-              <CardContent className="pt-6 space-y-3">
-                <Button
-                  onClick={handlePreview}
-                  variant="outline"
-                  className="w-full h-12 text-base"
-                >
-                  <Eye className="h-5 w-5 mr-2" />
-                  Preview
-                </Button>
-                <Button
-                  onClick={handleSaveDraft}
-                  variant="secondary"
-                  className="w-full h-12 text-base"
-                >
-                  <Save className="h-5 w-5 mr-2" />
-                  Save Draft
-                </Button>
-                <Button
-                  onClick={handlePublish}
-                  className="w-full h-12 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-                >
-                  <Sparkles className="h-5 w-5 mr-2" />
-                  Publish Blog
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Blog Stats */}
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm">
-              <CardContent className="pt-6">
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Word count:</span>
-                    <span className="font-medium">
-                      {
-                        description
-                          .replace(/<[^>]*>/g, "")
-                          .split(" ")
-                          .filter((word) => word.length > 0).length
-                      }
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Reading time:</span>
-                    <span className="font-medium">
-                      ~
-                      {Math.ceil(
-                        description
-                          .replace(/<[^>]*>/g, "")
-                          .split(" ")
-                          .filter((word) => word.length > 0).length / 200
-                      )}{" "}
-                      min
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Images:</span>
-                    <span className="font-medium">{media.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tags:</span>
-                    <span className="font-medium">{tags.length}</span>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </div>

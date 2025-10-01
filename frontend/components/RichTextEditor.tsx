@@ -4,11 +4,71 @@ import React from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Extension } from "@tiptap/core";
 import { Button } from "@/components/ui/button";
+import "./rich-text-editor.css";
+
+// Custom FontSize extension
+const FontSize = Extension.create({
+  name: "fontSize",
+
+  addOptions() {
+    return {
+      types: ["textStyle"],
+    };
+  },
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: (element) => element.style.fontSize?.replace("px", ""),
+            renderHTML: (attributes) => {
+              if (!attributes.fontSize) {
+                return {};
+              }
+              return {
+                style: `font-size: ${attributes.fontSize}px`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+
+  addCommands() {
+    return {
+      setFontSize:
+        (fontSize) =>
+        ({ chain }) => {
+          return chain().setMark("textStyle", { fontSize }).run();
+        },
+      unsetFontSize:
+        () =>
+        ({ chain }) => {
+          return chain()
+            .setMark("textStyle", { fontSize: null })
+            .removeEmptyTextStyle()
+            .run();
+        },
+    };
+  },
+});
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Bold,
   Italic,
@@ -19,16 +79,11 @@ import {
   List,
   ListOrdered,
   Link2,
-  Image as ImageIcon,
   AlignLeft,
   AlignCenter,
   AlignRight,
-  Heading1,
-  Heading2,
-  Heading3,
   Undo,
   Redo,
-  Type,
 } from "lucide-react";
 
 interface RichTextEditorProps {
@@ -72,10 +127,26 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onChange,
   placeholder = "Start writing your story...",
 }) => {
+  const [currentFontSize, setCurrentFontSize] = React.useState("default");
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
+        bold: {
+          HTMLAttributes: {
+            class: "font-bold",
+          },
+        },
+        italic: {
+          HTMLAttributes: {
+            class: "italic",
+          },
+        },
+        strike: {
+          HTMLAttributes: {
+            class: "line-through",
+          },
+        },
         bulletList: {
           keepMarks: true,
           keepAttributes: false,
@@ -92,10 +163,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             "text-primary hover:text-primary/80 underline transition-colors",
         },
       }),
-      Image.configure({
-        inline: true,
-        allowBase64: true,
-      }),
       Placeholder.configure({
         placeholder,
       }),
@@ -103,18 +170,45 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         types: ["heading", "paragraph"],
       }),
       Underline,
+      TextStyle,
+      FontSize,
     ],
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    onSelectionUpdate: ({ editor }) => {
+      // Update current font size when selection changes
+      const attrs = editor.getAttributes("textStyle");
+      if (attrs.fontSize) {
+        const size = attrs.fontSize.toString();
+        const sizeWithPx = size.includes("px") ? size : `${size}px`;
+        setCurrentFontSize(sizeWithPx);
+      } else {
+        setCurrentFontSize("default");
+      }
+    },
     editorProps: {
       attributes: {
-        class:
-          "prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl mx-auto focus:outline-none min-h-[400px] lg:min-h-[500px] p-6",
+        class: "focus:outline-none min-h-[400px] lg:min-h-[500px] p-6",
+        spellcheck: "false",
       },
     },
   });
+
+  // Initialize font size state when editor is ready
+  React.useEffect(() => {
+    if (editor) {
+      const attrs = editor.getAttributes("textStyle");
+      if (attrs.fontSize) {
+        const size = attrs.fontSize.toString();
+        const sizeWithPx = size.includes("px") ? size : `${size}px`;
+        setCurrentFontSize(sizeWithPx);
+      } else {
+        setCurrentFontSize("default");
+      }
+    }
+  }, [editor]);
 
   if (!editor) {
     return null;
@@ -127,19 +221,32 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   };
 
-  const addImage = () => {
-    const url = window.prompt("Enter image URL:");
-    if (url) {
-      editor.chain().focus().setImage({ src: url, alt: "Blog image" }).run();
-    }
-  };
-
   const removeLink = () => {
     editor.chain().focus().unsetLink().run();
   };
 
+  const setFontSize = (size: string) => {
+    if (!editor) return;
+
+    if (size === "default") {
+      editor.chain().focus().unsetFontSize().run();
+      setCurrentFontSize("default");
+    } else {
+      const sizeValue = size.replace("px", "");
+      editor.chain().focus().setFontSize(sizeValue).run();
+      setCurrentFontSize(size);
+    }
+  };
+
+  const getCurrentFontSize = () => {
+    return currentFontSize;
+  };
+
   return (
-    <div className="border-0 rounded-lg bg-gradient-to-br from-muted/30 to-muted/20 focus-within:from-muted/50 focus-within:to-muted/30 transition-all duration-300 overflow-hidden">
+    <div
+      className="border-0 rounded-lg bg-gradient-to-br from-muted/30 to-muted/20 focus-within:from-muted/50 focus-within:to-muted/30 transition-all duration-300 overflow-hidden"
+      style={{ userSelect: "text" }}
+    >
       {/* Toolbar */}
       <div className="border-b bg-gradient-to-r from-muted/50 to-muted/30 p-3">
         <div className="flex flex-wrap gap-1">
@@ -175,42 +282,26 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </MenuButton>
           </div>
 
-          {/* Headings */}
+          {/* Font Size */}
           <div className="flex gap-1 mr-3">
-            <MenuButton
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 1 }).run()
-              }
-              isActive={editor.isActive("heading", { level: 1 })}
-              title="Heading 1"
-            >
-              <Heading1 className="h-4 w-4" />
-            </MenuButton>
-            <MenuButton
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 2 }).run()
-              }
-              isActive={editor.isActive("heading", { level: 2 })}
-              title="Heading 2"
-            >
-              <Heading2 className="h-4 w-4" />
-            </MenuButton>
-            <MenuButton
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 3 }).run()
-              }
-              isActive={editor.isActive("heading", { level: 3 })}
-              title="Heading 3"
-            >
-              <Heading3 className="h-4 w-4" />
-            </MenuButton>
-            <MenuButton
-              onClick={() => editor.chain().focus().setParagraph().run()}
-              isActive={editor.isActive("paragraph")}
-              title="Paragraph"
-            >
-              <Type className="h-4 w-4" />
-            </MenuButton>
+            <Select value={getCurrentFontSize()} onValueChange={setFontSize}>
+              <SelectTrigger className="w-20 h-8 text-xs">
+                <SelectValue placeholder="Size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Default</SelectItem>
+                <SelectItem value="12px">12px</SelectItem>
+                <SelectItem value="14px">14px</SelectItem>
+                <SelectItem value="16px">16px</SelectItem>
+                <SelectItem value="18px">18px</SelectItem>
+                <SelectItem value="20px">20px</SelectItem>
+                <SelectItem value="24px">24px</SelectItem>
+                <SelectItem value="28px">28px</SelectItem>
+                <SelectItem value="32px">32px</SelectItem>
+                <SelectItem value="36px">36px</SelectItem>
+                <SelectItem value="48px">48px</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Lists and Quotes */}
@@ -281,9 +372,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             >
               <Link2 className="h-4 w-4" />
             </MenuButton>
-            <MenuButton onClick={addImage} title="Insert Image">
-              <ImageIcon className="h-4 w-4" />
-            </MenuButton>
           </div>
 
           {/* Undo/Redo */}
@@ -307,7 +395,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       </div>
 
       {/* Editor Content */}
-      <div className="bg-transparent">
+      <div className="bg-transparent min-h-[400px] lg:min-h-[550px]">
         <EditorContent editor={editor} className="rich-text-editor" />
       </div>
     </div>
