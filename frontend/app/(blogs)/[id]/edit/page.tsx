@@ -20,18 +20,11 @@ import {
   Image as ImageIcon,
   Tag as TagIcon,
   FileText,
-  Eye,
   Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import { RichTextEditor } from "@/components/RichTextEditor";
 
 interface BlogFormData {
@@ -62,7 +55,6 @@ const EditBlogPage: React.FC = () => {
     isPublished: true,
   });
 
-  const [previewOpen, setPreviewOpen] = useState(false);
   const [tagInput, setTagInput] = useState("");
   const [dragOver, setDragOver] = useState(false);
 
@@ -90,7 +82,7 @@ const EditBlogPage: React.FC = () => {
           currentBlog.authorId === userId);
 
       if (!isOwner) {
-        router.push(`/${blogId}`);
+        router.push(`/blogs/${blogId}`);
         return;
       }
 
@@ -104,7 +96,10 @@ const EditBlogPage: React.FC = () => {
     }
   }, [currentBlog, user, blogId, router]);
 
-  const handleInputChange = (field: keyof BlogFormData, value: any) => {
+  const handleInputChange = (
+    field: keyof BlogFormData,
+    value: string | Array<{ url: string; alt: string }> | string[] | boolean
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -188,7 +183,7 @@ const EditBlogPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 animated-bg flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="glass-card p-8 rounded-2xl">
           <div className="flex items-center space-x-3">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -201,7 +196,7 @@ const EditBlogPage: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-bold">Authentication Required</h1>
           <p className="text-muted-foreground">Please sign in to edit blogs.</p>
@@ -214,8 +209,8 @@ const EditBlogPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 animated-bg">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-svh ">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <div className="mb-8">
           <Link href={`/${blogId}`}>
             <Button
@@ -228,7 +223,7 @@ const EditBlogPage: React.FC = () => {
           </Link>
         </div>
 
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8">
           <header className="text-center ">
             <h1 className="text-4xl pb-4 font-bold bg-gradient-to-r from-primary to-blue-900 bg-clip-text text-transparent">
               Edit Blog Post
@@ -401,20 +396,8 @@ const EditBlogPage: React.FC = () => {
 
               <div className="space-y-4">
                 <Button
-                  onClick={() => setPreviewOpen(true)}
-                  variant="outline"
-                  className="w-full glass-card glow-on-hover"
-                  disabled={
-                    !formData.title.trim() || !formData.description.trim()
-                  }
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Preview
-                </Button>
-
-                <Button
                   onClick={handleSubmit}
-                  className="w-full bg-gradient-to-r from-primary to-blue-900 "
+                  className="w-full bg-gradient-to-r  from-primary to-blue-900 "
                   disabled={
                     updating ||
                     !formData.title.trim() ||
@@ -438,75 +421,6 @@ const EditBlogPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto glass-card">
-          <DialogHeader>
-            <DialogTitle className="flex items-center space-x-2">
-              <Eye className="h-5 w-5" />
-              <span>Preview</span>
-            </DialogTitle>
-            <DialogDescription>
-              This is how your blog post will appear to readers
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-6 mt-6">
-            <div className="space-y-4">
-              {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {formData.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center space-x-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium"
-                    >
-                      <TagIcon className="h-3 w-3" />
-                      <span>#{tag}</span>
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <h1 className="text-3xl font-bold text-foreground">
-                {formData.title || "Untitled Blog Post"}
-              </h1>
-            </div>
-
-            {formData.media.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {formData.media.slice(0, 6).map((image, index) => (
-                  <div
-                    key={index}
-                    className="aspect-video rounded-lg overflow-hidden bg-muted"
-                  >
-                    <Image
-                      src={image.url}
-                      alt={image.alt}
-                      width={300}
-                      height={200}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div
-              className="prose prose-lg max-w-none
-                prose-headings:text-foreground prose-headings:font-bold
-                prose-p:text-foreground prose-p:leading-relaxed
-                prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                prose-strong:text-foreground prose-strong:font-semibold
-                prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                prose-pre:bg-muted prose-pre:border prose-pre:rounded-lg
-                prose-blockquote:text-muted-foreground prose-blockquote:border-primary prose-blockquote:border-l-4 prose-blockquote:pl-6"
-              dangerouslySetInnerHTML={{
-                __html: formData.description || "<p>No content yet...</p>",
-              }}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
