@@ -176,16 +176,7 @@
     @apply futuristic-card p-4;
   }
 
-  /* Loading shimmer effect */
-  .shimmer {
-    @apply relative overflow-hidden bg-gray-200 dark:bg-gray-800;
-  }
 
-  .shimmer::after {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent;
-    @apply -translate-x-full animate-shimmer;
-  }
 
   /* Scrollbar styling */
   .custom-scrollbar {
@@ -365,4 +356,160 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Blog Details Page Enhancements */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Glass morphism effect for cards */
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass-card {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Animated gradient background */
+.animated-bg {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(59, 130, 246, 0.1) 50%, rgba(16, 185, 129, 0.1) 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Hover glow effect */
+.glow-on-hover {
+  transition: all 0.3s ease;
+}
+
+.glow-on-hover:hover {
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.3), 0 0 40px rgba(147, 51, 234, 0.1);
+}
+
+/* Custom prose enhancements for blog content */
+.prose-enhanced {
+  line-height: 1.8;
+}
+
+.prose-enhanced h1, 
+.prose-enhanced h2, 
+.prose-enhanced h3, 
+.prose-enhanced h4, 
+.prose-enhanced h5, 
+.prose-enhanced h6 {
+  background: linear-gradient(135deg, #9333ea, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose-enhanced blockquote {
+  border-left: 4px solid #9333ea;
+  background: rgba(147, 51, 234, 0.05);
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+}
+
+.prose-enhanced code {
+  background: rgba(147, 51, 234, 0.1);
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  color: #9333ea;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.prose-enhanced pre {
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.prose-enhanced pre code {
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  padding: 0;
+  font-size: 0.875rem;
+}
+
+.prose-enhanced a {
+  background: linear-gradient(135deg, #9333ea, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-bottom 0.3s ease;
+}
+
+.prose-enhanced a:hover {
+  border-bottom: 1px solid #9333ea;
+}
+
+/* Image zoom animation */
+.image-zoom {
+  overflow: hidden;
+  border-radius: 0.75rem;
+}
+
+.image-zoom img {
+  transition: transform 0.5s ease, filter 0.3s ease;
+}
+
+.image-zoom:hover img {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* Floating animation for interactive elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.dark .shimmer {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200px 100%;
 }

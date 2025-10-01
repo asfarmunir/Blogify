@@ -4,15 +4,22 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
-import { fetchBlogs, fetchPopularTags, Blog, PopularTag } from "@/lib/store/features/blogSlice";
+import {
+  fetchBlogs,
+  fetchPopularTags,
+  Blog,
+  PopularTag,
+} from "@/lib/store/features/blogSlice";
 
 // Extended interface for populated blog data from API
-interface PopulatedBlog extends Omit<Blog, 'authorId'> {
-  authorId?: {
-    _id: string;
-    name: string;
-    email: string;
-  } | string;
+interface PopulatedBlog extends Omit<Blog, "authorId"> {
+  authorId?:
+    | {
+        _id: string;
+        name: string;
+        email: string;
+      }
+    | string;
 }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +58,8 @@ const BlogCard = ({ blog }: { blog: PopulatedBlog }) => {
     return html.replace(/<[^>]*>/g, "");
   };
 
-  const featuredImage = blog.media && blog.media.length > 0 ? blog.media[0] : null;
+  const featuredImage =
+    blog.media && blog.media.length > 0 ? blog.media[0] : null;
   const excerpt = stripHtml(blog.description);
 
   return (
@@ -84,15 +92,25 @@ const BlogCard = ({ blog }: { blog: PopulatedBlog }) => {
         <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
           <div className="flex items-center space-x-1">
             <User className="h-4 w-4" />
-            <span>{typeof blog.authorId === 'object' && blog.authorId && 'name' in blog.authorId ? blog.authorId.name : "Anonymous"}</span>
+            <span>
+              {typeof blog.authorId === "object" &&
+              blog.authorId &&
+              "name" in blog.authorId
+                ? blog.authorId.name
+                : "Anonymous"}
+            </span>
           </div>
           <div className="flex items-center space-x-1">
             <Calendar className="h-4 w-4" />
-            <span>{formatDate(blog.publishedAt || blog.createdAt || new Date().toISOString())}</span>
+            <span>
+              {formatDate(
+                blog.publishedAt || blog.createdAt || new Date().toISOString()
+              )}
+            </span>
           </div>
         </div>
 
-        <Link href={`/blogs/${blog._id}`} className="group">
+        <Link href={`/${blog._id}`} className="group">
           <h2 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-200 line-clamp-2">
             {blog.title}
           </h2>
@@ -130,8 +148,12 @@ const BlogCard = ({ blog }: { blog: PopulatedBlog }) => {
               <span>{Math.ceil(excerpt.split(" ").length / 200)} min read</span>
             </div>
           </div>
-          <Link href={`/blogs/${blog._id}`}>
-            <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
+          <Link href={`/${blog._id}`}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-primary hover:text-primary/80"
+            >
               Read More →
             </Button>
           </Link>
@@ -165,14 +187,14 @@ const BlogSkeleton = () => (
   </Card>
 );
 
-const Pagination = ({ 
-  currentPage, 
-  totalPages, 
-  onPageChange 
-}: { 
-  currentPage: number; 
-  totalPages: number; 
-  onPageChange: (page: number) => void; 
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }) => {
   const getPageNumbers = () => {
     const pages = [];
@@ -211,7 +233,9 @@ const Pagination = ({
           variant={currentPage === page ? "default" : "outline"}
           size="sm"
           onClick={() => onPageChange(page)}
-          className={currentPage === page ? "bg-primary text-primary-foreground" : ""}
+          className={
+            currentPage === page ? "bg-primary text-primary-foreground" : ""
+          }
         >
           {page}
         </Button>
@@ -233,13 +257,9 @@ const Pagination = ({
 
 const BlogsPage = () => {
   const dispatch = useAppDispatch();
-  const { 
-    blogs, 
-    loading, 
-    pagination, 
-    popularTags, 
-    error 
-  } = useAppSelector((state) => state.blog);
+  const { blogs, loading, pagination, popularTags, error } = useAppSelector(
+    (state) => state.blog
+  );
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
@@ -258,7 +278,12 @@ const BlogsPage = () => {
   }, [searchTerm]);
 
   const fetchBlogsData = useCallback(() => {
-    const params: { page: number; limit: number; search?: string; tag?: string } = {
+    const params: {
+      page: number;
+      limit: number;
+      search?: string;
+      tag?: string;
+    } = {
       page: currentPage,
       limit: 12,
     };
@@ -312,7 +337,8 @@ const BlogsPage = () => {
             </h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Explore our curated collection of articles, tutorials, and insights from passionate writers around the world.
+            Explore our curated collection of articles, tutorials, and insights
+            from passionate writers around the world.
           </p>
         </div>
 
@@ -399,12 +425,16 @@ const BlogsPage = () => {
         {/* Results Info */}
         {pagination && (
           <div className="mb-6 text-center text-sm text-muted-foreground">
-            Showing {((pagination.currentPage - 1) * pagination.limit) + 1} to{" "}
-            {Math.min(pagination.currentPage * pagination.limit, pagination.totalBlogs)} of{" "}
-            {pagination.totalBlogs} articles
+            Showing {(pagination.currentPage - 1) * pagination.limit + 1} to{" "}
+            {Math.min(
+              pagination.currentPage * pagination.limit,
+              pagination.totalBlogs
+            )}{" "}
+            of {pagination.totalBlogs} articles
             {(searchTerm || selectedTag) && (
               <span>
-                {" "}for {searchTerm && `"${searchTerm}"`}
+                {" "}
+                for {searchTerm && `"${searchTerm}"`}
                 {searchTerm && selectedTag && " in "}
                 {selectedTag && `#${selectedTag}`}
               </span>
@@ -430,11 +460,13 @@ const BlogsPage = () => {
 
         {/* Loading State */}
         {loading && (
-          <div className={`grid gap-6 ${
-            viewMode === "grid" 
-              ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
-              : "grid-cols-1"
-          }`}>
+          <div
+            className={`grid gap-6 ${
+              viewMode === "grid"
+                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                : "grid-cols-1"
+            }`}
+          >
             {Array.from({ length: 6 }).map((_, index) => (
               <BlogSkeleton key={index} />
             ))}
@@ -460,7 +492,7 @@ const BlogsPage = () => {
                 Clear Filters
               </Button>
             ) : (
-              <Link href="/blogs/create">
+              <Link href="/create">
                 <Button>
                   <Sparkles className="h-4 w-4 mr-2" />
                   Write Your First Article
@@ -473,11 +505,13 @@ const BlogsPage = () => {
         {/* Blog Grid */}
         {!loading && blogs.length > 0 && (
           <>
-            <div className={`grid gap-6 ${
-              viewMode === "grid" 
-                ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
-                : "grid-cols-1 max-w-4xl mx-auto"
-            }`}>
+            <div
+              className={`grid gap-6 ${
+                viewMode === "grid"
+                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                  : "grid-cols-1 max-w-4xl mx-auto"
+              }`}
+            >
               {blogs.map((blog: PopulatedBlog) => (
                 <BlogCard key={blog._id} blog={blog} />
               ))}

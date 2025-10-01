@@ -1,0 +1,598 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { fetchBlogById, toggleLike } from "@/lib/store/features/blogSlice";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  ArrowLeft,
+  Calendar,
+  User,
+  Tag,
+  Heart,
+  Share2,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  ZoomIn,
+  Sparkles,
+} from "lucide-react";
+
+// Extended interface for populated blog data from API
+interface PopulatedBlog {
+  _id?: string;
+  title: string;
+  description: string;
+  media: Array<{ url: string; alt: string }>;
+  tags: string[];
+  authorId?:
+    | {
+        _id: string;
+        name: string;
+        email: string;
+      }
+    | string;
+  isPublished: boolean;
+  publishedAt?: string;
+  likes: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface ImageModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  images: Array<{ url: string; alt: string }>;
+  currentIndex: number;
+  onImageChange: (index: number) => void;
+}
+
+const ImageModal: React.FC<ImageModalProps> = ({
+  isOpen,
+  onClose,
+  images,
+  currentIndex,
+  onImageChange,
+}) => {
+  const handlePrevious = () => {
+    const newIndex = currentIndex > 0 ? currentIndex - 1 : images.length - 1;
+    onImageChange(newIndex);
+  };
+
+  const handleNext = () => {
+    const newIndex = currentIndex < images.length - 1 ? currentIndex + 1 : 0;
+    onImageChange(newIndex);
+  };
+
+  const handleKeyPress = React.useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        const newIndex =
+          currentIndex > 0 ? currentIndex - 1 : images.length - 1;
+        onImageChange(newIndex);
+      }
+      if (e.key === "ArrowRight") {
+        const newIndex =
+          currentIndex < images.length - 1 ? currentIndex + 1 : 0;
+        onImageChange(newIndex);
+      }
+      if (e.key === "Escape") onClose();
+    },
+    [currentIndex, images.length, onClose, onImageChange]
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener("keydown", handleKeyPress);
+      return () => document.removeEventListener("keydown", handleKeyPress);
+    }
+  }, [isOpen, handleKeyPress]);
+
+  if (!isOpen || images.length === 0) return null;
+
+  const currentImage = images[currentIndex];
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-7xl max-h-[95vh] p-0 bg-black/95 border-0">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Image Gallery</DialogTitle>
+          <DialogDescription>
+            Navigate through blog images using arrow keys or buttons
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Main Image Display */}
+        <div className="relative w-full h-[70vh] flex items-center justify-center bg-black">
+          <Image
+            src={currentImage.url}
+            alt={currentImage.alt}
+            width={1200}
+            height={800}
+            className="max-w-full max-h-full object-contain"
+            priority
+          />
+
+          {/* Navigation Controls */}
+          {images.length > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-white/20"
+                onClick={handlePrevious}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-white/20"
+                onClick={handleNext}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+            </>
+          )}
+
+          {/* Close Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white border-white/20"
+            onClick={onClose}
+          >
+            <X className="h-6 w-6" />
+          </Button>
+
+          {/* Image Counter */}
+          <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+            {currentIndex + 1} of {images.length}
+          </div>
+        </div>
+
+        {/* Thumbnail Strip */}
+        {images.length > 1 && (
+          <div className="p-4 bg-black/90">
+            <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
+              {images.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => onImageChange(index)}
+                  className={`flex-shrink-0 relative w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                    index === currentIndex
+                      ? "border-white shadow-lg"
+                      : "border-transparent hover:border-white/50"
+                  }`}
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.alt}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                  />
+                  {index === currentIndex && (
+                    <div className="absolute inset-0 bg-white/20" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const ImageGallery: React.FC<{
+  images: Array<{ url: string; alt: string }>;
+}> = ({ images }) => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  if (!images || images.length === 0) return null;
+
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setModalOpen(true);
+  };
+
+  const displayImages = images.slice(0, 5);
+  const hasMoreImages = images.length > 5;
+
+  return (
+    <>
+      <div className="space-y-4">
+        <h3 className="text-xl font-semibold text-foreground flex items-center space-x-2">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <span>Gallery</span>
+          {images.length > 1 && (
+            <span className="text-sm text-muted-foreground">
+              ({images.length} images)
+            </span>
+          )}
+        </h3>
+
+        <div className="space-y-4">
+          {/* Main Image */}
+          <div
+            className="relative group cursor-pointer"
+            onClick={() => handleImageClick(0)}
+          >
+            <div className="relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-muted/50 to-muted/30">
+              <Image
+                src={displayImages[0].url}
+                alt={displayImages[0].alt}
+                width={800}
+                height={450}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                priority
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="bg-black/50 text-white p-3 rounded-full">
+                    <ZoomIn className="h-6 w-6" />
+                  </div>
+                </div>
+              </div>
+              {images.length > 1 && (
+                <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                  1 of {images.length}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Thumbnail Grid */}
+          {displayImages.length > 1 && (
+            <div className="grid grid-cols-4 gap-3">
+              {displayImages.slice(1, 5).map((image, index) => (
+                <div
+                  key={index + 1}
+                  className="relative group cursor-pointer aspect-square rounded-lg overflow-hidden bg-gradient-to-br from-muted/50 to-muted/30"
+                  onClick={() => handleImageClick(index + 1)}
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.alt}
+                    width={200}
+                    height={200}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="bg-black/50 text-white p-2 rounded-full">
+                        <ZoomIn className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </div>
+                  {index === 3 && hasMoreImages && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <div className="text-white text-center">
+                        <div className="text-xl font-bold">
+                          +{images.length - 5}
+                        </div>
+                        <div className="text-sm">more</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <ImageModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        images={images}
+        currentIndex={currentImageIndex}
+        onImageChange={setCurrentImageIndex}
+      />
+    </>
+  );
+};
+
+const BlogDetailsPage: React.FC = () => {
+  const params = useParams();
+  const dispatch = useAppDispatch();
+  const { currentBlog, loading, error } = useAppSelector((state) => state.blog);
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+
+  const blogId = params.id as string;
+
+  useEffect(() => {
+    if (blogId) {
+      dispatch(fetchBlogById(blogId));
+    }
+  }, [dispatch, blogId]);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const calculateReadingTime = (content: string) => {
+    const wordsPerMinute = 200;
+    const wordCount = content.replace(/<[^>]*>/g, "").split(/\s+/).length;
+    return Math.ceil(wordCount / wordsPerMinute);
+  };
+
+  const handleLike = () => {
+    if (isAuthenticated && blogId) {
+      dispatch(toggleLike(blogId));
+    }
+  };
+
+  const handleShare = async () => {
+    if (navigator.share && currentBlog) {
+      try {
+        await navigator.share({
+          title: currentBlog.title,
+          text: currentBlog.description
+            .replace(/<[^>]*>/g, "")
+            .substring(0, 150),
+          url: window.location.href,
+        });
+      } catch {
+        // Fallback to clipboard
+        navigator.clipboard.writeText(window.location.href);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-4xl mx-auto space-y-8">
+            {/* Header Skeleton */}
+            <div className="space-y-4">
+              <div className="h-8 bg-muted/50 rounded shimmer" />
+              <div className="h-12 bg-muted/50 rounded shimmer w-3/4" />
+              <div className="flex space-x-4">
+                <div className="h-4 bg-muted/50 rounded shimmer w-24" />
+                <div className="h-4 bg-muted/50 rounded shimmer w-20" />
+                <div className="h-4 bg-muted/50 rounded shimmer w-16" />
+              </div>
+            </div>
+
+            {/* Image Skeleton */}
+            <div className="aspect-video bg-muted/50 rounded-xl shimmer" />
+
+            {/* Content Skeleton */}
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-4 bg-muted/50 rounded shimmer" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !currentBlog) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="text-6xl text-muted-foreground">404</div>
+          <h1 className="text-2xl font-bold text-foreground">Blog Not Found</h1>
+          <p className="text-muted-foreground">
+            The blog post you&apos;re looking for doesn&apos;t exist or has been
+            removed.
+          </p>
+          <Link href="/">
+            <Button>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Blogs
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const blog = currentBlog as PopulatedBlog;
+  const userId = user
+    ? (user as { _id?: string; id?: string })._id ||
+      (user as { _id?: string; id?: string }).id ||
+      ""
+    : "";
+  const isLiked = user && blog.likes.includes(userId);
+  const readingTime = calculateReadingTime(blog.description);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back Navigation */}
+        <div className="mb-8">
+          <Link href="/">
+            <Button
+              variant="ghost"
+              className="flex items-center space-x-2 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Articles</span>
+            </Button>
+          </Link>
+        </div>
+
+        <div className="max-w-4xl mx-auto">
+          {/* Blog Header */}
+          <header className="mb-8 space-y-6">
+            {/* Tags */}
+            {blog.tags && blog.tags.length > 0 && (
+              <div className="flex flex-wrap gap-3">
+                {blog.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center space-x-2 bg-gradient-to-r from-primary/10 to-accent/10 text-primary px-4 py-2 rounded-full text-sm font-semibold glass-card glow-on-hover hover:scale-105 transition-transform duration-200 cursor-pointer"
+                  >
+                    <Tag className="h-4 w-4 animate-pulse" />
+                    <span>#{tag}</span>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Title */}
+            <h1 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight">
+              {blog.title}
+            </h1>
+
+            {/* Meta Information */}
+            <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
+              <div className="flex items-center space-x-2">
+                <User className="h-4 w-4" />
+                <span>
+                  {typeof blog.authorId === "object" &&
+                  blog.authorId &&
+                  "name" in blog.authorId
+                    ? blog.authorId.name
+                    : "Anonymous"}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Calendar className="h-4 w-4" />
+                <span>
+                  {formatDate(
+                    blog.publishedAt ||
+                      blog.createdAt ||
+                      new Date().toISOString()
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4" />
+                <span>{readingTime} min read</span>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center space-x-4">
+              <Button
+                variant={isLiked ? "default" : "outline"}
+                size="lg"
+                onClick={handleLike}
+                disabled={!isAuthenticated}
+                className={`flex items-center space-x-3 px-6 py-3 rounded-full transition-all duration-300 ${
+                  isLiked
+                    ? "bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 shadow-lg shadow-red-500/25"
+                    : "glass-card glow-on-hover hover:bg-red-50 dark:hover:bg-red-950/20"
+                }`}
+              >
+                <Heart
+                  className={`h-5 w-5 ${
+                    isLiked ? "fill-current text-white" : "text-red-500"
+                  }`}
+                />
+                <span
+                  className={`font-medium ${
+                    isLiked ? "text-white" : "text-red-500"
+                  }`}
+                >
+                  {blog.likes.length}
+                </span>
+                <span className={isLiked ? "text-white" : "text-foreground"}>
+                  {isLiked ? "Liked" : "Like"}
+                </span>
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleShare}
+                className="flex items-center space-x-3 px-6 py-3 rounded-full glass-card glow-on-hover hover:bg-primary/5"
+              >
+                <Share2 className="h-5 w-5 text-primary" />
+                <span className="font-medium">Share</span>
+              </Button>
+            </div>
+          </header>
+
+          {/* Image Gallery */}
+          {blog.media && blog.media.length > 0 && (
+            <div className="mb-12 glass-card p-6 rounded-2xl glow-on-hover">
+              <ImageGallery images={blog.media} />
+            </div>
+          )}
+
+          {/* Blog Content */}
+          <article className="mb-12">
+            <div className="glass-card rounded-2xl p-8 glow-on-hover">
+              <div
+                className="prose prose-lg prose-enhanced max-w-none
+                  prose-headings:text-foreground prose-headings:font-bold
+                  prose-p:text-foreground prose-p:leading-relaxed
+                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                  prose-strong:text-foreground prose-strong:font-semibold
+                  prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                  prose-pre:bg-muted prose-pre:border prose-pre:rounded-lg
+                  prose-blockquote:text-muted-foreground prose-blockquote:border-primary prose-blockquote:border-l-4 prose-blockquote:pl-6
+                  prose-ul:text-foreground prose-ol:text-foreground
+                  prose-li:text-foreground
+                  prose-img:rounded-lg prose-img:shadow-lg"
+                dangerouslySetInnerHTML={{ __html: blog.description }}
+              />
+            </div>
+          </article>
+
+          {/* Author Info */}
+          {typeof blog.authorId === "object" &&
+            blog.authorId &&
+            "name" in blog.authorId && (
+              <div className="mb-12 glass-card p-8 rounded-2xl glow-on-hover float-animation">
+                <div className="flex items-start space-x-6">
+                  <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-primary via-primary to-accent rounded-full flex items-center justify-center shadow-lg shadow-primary/25">
+                    <User className="h-10 w-10 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      {blog.authorId.name}
+                    </h3>
+                    <p className="text-lg text-muted-foreground mb-4 font-medium">
+                      ✨ Writer & Content Creator
+                    </p>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Passionate about sharing knowledge and insights through
+                      engaging content. Follow for more articles on technology,
+                      design, and innovation. Creating content that inspires and
+                      educates the community.
+                    </p>
+                    <div className="mt-4 flex space-x-2">
+                      <div className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
+                        🚀 Innovator
+                      </div>
+                      <div className="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">
+                        📝 Storyteller
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BlogDetailsPage;
