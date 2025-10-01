@@ -210,6 +210,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   }, [editor]);
 
+  // Update editor content when content prop changes
+  React.useEffect(() => {
+    if (editor && content !== undefined && editor.getHTML() !== content) {
+      editor.commands.setContent(content);
+    }
+  }, [editor, content]);
+
   if (!editor) {
     return null;
   }

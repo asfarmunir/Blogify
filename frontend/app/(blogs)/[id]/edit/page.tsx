@@ -84,6 +84,7 @@ const EditBlogPage: React.FC = () => {
         (typeof currentBlog.authorId === "object" &&
           currentBlog.authorId &&
           "_id" in currentBlog.authorId &&
+          // @ts-expect-error here
           currentBlog.authorId._id === userId) ||
         (typeof currentBlog.authorId === "string" &&
           currentBlog.authorId === userId);
@@ -228,8 +229,8 @@ const EditBlogPage: React.FC = () => {
         </div>
 
         <div className="max-w-4xl mx-auto space-y-8">
-          <header className="text-center space-y-4">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          <header className="text-center ">
+            <h1 className="text-4xl pb-4 font-bold bg-gradient-to-r from-primary to-blue-900 bg-clip-text text-transparent">
               Edit Blog Post
             </h1>
             <p className="text-muted-foreground text-lg">
@@ -260,12 +261,21 @@ const EditBlogPage: React.FC = () => {
                     <FileText className="h-5 w-5" />
                     <Label className="text-lg font-semibold">Content</Label>
                   </div>
-                  <RichTextEditor
-                    content={formData.description}
-                    onChange={(content) =>
-                      handleInputChange("description", content)
-                    }
-                  />
+                  {loading || !currentBlog ? (
+                    <div className="h-64 bg-muted/50 rounded-lg flex items-center justify-center">
+                      <div className="flex items-center space-x-2">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>Loading editor...</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <RichTextEditor
+                      content={formData.description}
+                      onChange={(content) =>
+                        handleInputChange("description", content)
+                      }
+                    />
+                  )}
                 </div>
               </Card>
 
@@ -404,7 +414,7 @@ const EditBlogPage: React.FC = () => {
 
                 <Button
                   onClick={handleSubmit}
-                  className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                  className="w-full bg-gradient-to-r from-primary to-blue-900 "
                   disabled={
                     updating ||
                     !formData.title.trim() ||
