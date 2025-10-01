@@ -3,9 +3,13 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/store";
-import { fetchBlogById, toggleLike } from "@/lib/store/features/blogSlice";
+import {
+  fetchBlogById,
+  toggleLike,
+  deleteBlog,
+} from "@/lib/store/features/blogSlice";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,6 +31,9 @@ import {
   X,
   ZoomIn,
   Sparkles,
+  Edit3,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 
 interface PopulatedBlog {
@@ -300,9 +307,13 @@ const ImageGallery: React.FC<{
 
 const BlogDetailsPage: React.FC = () => {
   const params = useParams();
+  const router = useRouter();
   const dispatch = useAppDispatch();
-  const { currentBlog, loading, error } = useAppSelector((state) => state.blog);
+  const { currentBlog, loading, error, deleting } = useAppSelector(
+    (state) => state.blog
+  );
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const blogId = params.id as string;
 
@@ -347,6 +358,18 @@ const BlogDetailsPage: React.FC = () => {
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const handleEdit = () => {
+    router.push(`/${blogId}/edit`);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (blogId) {
+      await dispatch(deleteBlog(blogId));
+      setDeleteModalOpen(false);
+      router.push("/");
     }
   };
 
@@ -407,6 +430,14 @@ const BlogDetailsPage: React.FC = () => {
     : "";
   const isLiked = user && blog.likes.includes(userId);
   const readingTime = calculateReadingTime(blog.description);
+
+  const isOwner =
+    user &&
+    ((typeof blog.authorId === "object" &&
+      blog.authorId &&
+      "_id" in blog.authorId &&
+      blog.authorId._id === userId) ||
+      (typeof blog.authorId === "string" && blog.authorId === userId));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -507,6 +538,30 @@ const BlogDetailsPage: React.FC = () => {
                 <Share2 className="h-5 w-5 text-primary" />
                 <span className="font-medium">Share</span>
               </Button>
+
+              {isOwner && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={handleEdit}
+                    className="flex items-center space-x-3 px-6 py-3 rounded-full glass-card glow-on-hover hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                  >
+                    <Edit3 className="h-5 w-5 text-blue-600" />
+                    <span className="font-medium text-blue-600">Edit</span>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => setDeleteModalOpen(true)}
+                    className="flex items-center space-x-3 px-6 py-3 rounded-full glass-card glow-on-hover hover:bg-red-50 dark:hover:bg-red-950/20"
+                  >
+                    <Trash2 className="h-5 w-5 text-red-600" />
+                    <span className="font-medium text-red-600">Delete</span>
+                  </Button>
+                </>
+              )}
             </div>
           </header>
 
@@ -570,6 +625,52 @@ const BlogDetailsPage: React.FC = () => {
             )}
         </div>
       </div>
+
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent className="glass-card border-red-200 dark:border-red-800">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-3 text-red-600">
+              <AlertTriangle className="h-6 w-6" />
+              <span>Delete Blog Post</span>
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground mt-4">
+              Are you sure you want to delete &quot;
+              <strong>{blog.title}</strong>&quot;? This action cannot be undone
+              and will permanently remove the blog post and all its associated
+              data.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex justify-end space-x-4 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteModalOpen(false)}
+              disabled={deleting}
+              className="px-6"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+              className="px-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+            >
+              {deleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
