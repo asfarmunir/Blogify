@@ -49,7 +49,7 @@ export const Navbar = () => {
               </Link>
               {isAuthenticated && (
                 <Link
-                  href="/blogs/create"
+                  href="/create"
                   className="text-base lg:text-lg font-medium transition-colors hover:text-primary text-foreground"
                 >
                   Write
@@ -67,7 +67,7 @@ export const Navbar = () => {
                   className="hidden md:flex"
                   asChild
                 >
-                  <Link href="/blogs/create">
+                  <Link href="/create">
                     <PlusCircle className="h-5 w-5 mr-2" />
                     <span className="text-base font-medium">Write</span>
                   </Link>
