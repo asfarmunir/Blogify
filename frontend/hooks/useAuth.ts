@@ -32,8 +32,9 @@ export const useAuth = () => {
       try {
         dispatch(setLoading(true))
         const response = await authApi.validateToken()
+        console.log("🚀 ~ initializeAuth ~ response:", response)
         dispatch(loginSuccess({ 
-          user: response.user, 
+          user: response.data.user, 
           accessToken: storedToken, 
           refreshToken: storedToken 
         }))
@@ -57,7 +58,6 @@ export const useAuth = () => {
       dispatch(loginStart())
       
       const response = await authApi.login({ email, password })
-      console.log("🚀 ~ login ~ response:", response)
       localStorage.setItem('token', response.data.accessToken)
       dispatch(loginSuccess({ 
         user: response.data.user, 
@@ -105,7 +105,7 @@ export const useAuth = () => {
     try {
       await authApi.logout()
       toast.success('Signed out successfully', { id: loadingToast })
-      router.push('/')
+      router.push('/auth')
     } catch (error) {
       // Continue with logout even if API call fails
       console.error('Logout API call failed:', error)

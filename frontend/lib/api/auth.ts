@@ -24,8 +24,12 @@ export interface AuthResponse {
 }
 
 export interface TokenValidationResponse {
-  valid: boolean
-  user: User
+  data: {
+    user: User
+    valid: boolean
+  },
+  message: string,
+  statusCode: number
 }
 
 export const authApi = {

@@ -76,7 +76,7 @@ export function RegisterForm({ className, onToggleMode }: RegisterFormProps) {
     );
 
     if (result.success) {
-      router.push("/user/projects");
+      router.push("/");
     }
   };
 

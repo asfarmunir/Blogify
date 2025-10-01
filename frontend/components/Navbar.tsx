@@ -18,6 +18,7 @@ import { User, LogOut, PlusCircle, BookOpen, Settings } from "lucide-react";
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  console.log("🚀 ~ Navbar ~ user:", user);
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -25,11 +26,7 @@ export const Navbar = () => {
   };
 
   const handleLogin = () => {
-    router.push("/auth/login");
-  };
-
-  const handleRegister = () => {
-    router.push("/auth/register");
+    router.push("/auth");
   };
 
   return (
@@ -39,7 +36,7 @@ export const Navbar = () => {
           <div className="flex items-center space-x-8">
             <Link href="/" className="flex items-center space-x-3">
               <BookOpen className="h-7 w-7 lg:h-8 lg:w-8 text-primary" />
-              <span className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              <span className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary via-primary/70 to-primary bg-clip-text text-transparent">
                 Blogify
               </span>
             </Link>
@@ -53,7 +50,7 @@ export const Navbar = () => {
               {isAuthenticated && (
                 <Link
                   href="/blogs/create"
-                  className="text-base lg:text-lg font-medium transition-colors hover:text-primary text-muted-foreground"
+                  className="text-base lg:text-lg font-medium transition-colors hover:text-primary text-foreground"
                 >
                   Write
                 </Link>
@@ -79,11 +76,9 @@ export const Navbar = () => {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="relative h-10 w-10 lg:h-12 lg:w-12 rounded-full"
+                      className="relative h-8 w-8 lg:h-10 lg:w-10 rounded-full bg-primary/20"
                     >
-                      <div className="flex h-10 w-10 lg:h-12 lg:w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/30 border-2 border-primary/20">
-                        <User className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
-                      </div>
+                      <User className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-64" align="end" forceMount>
@@ -129,19 +124,11 @@ export const Navbar = () => {
             ) : (
               <div className="flex items-center space-x-3 lg:space-x-4">
                 <Button
-                  variant="ghost"
                   size="default"
                   onClick={handleLogin}
                   className="text-base font-medium px-6"
                 >
                   Log in
-                </Button>
-                <Button
-                  size="default"
-                  onClick={handleRegister}
-                  className="text-base font-medium px-6"
-                >
-                  Sign up
                 </Button>
               </div>
             )}

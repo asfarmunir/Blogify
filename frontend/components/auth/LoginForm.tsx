@@ -58,7 +58,7 @@ export function LoginForm({ className, onToggleMode }: LoginFormProps) {
     const result = await login(formData.email, formData.password);
 
     if (result.success) {
-      router.push("/blogs");
+      router.push("/");
     }
   };
 
