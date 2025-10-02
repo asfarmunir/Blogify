@@ -98,7 +98,7 @@ const BlogCard = ({
       </div>
 
       <CardHeader className="pb-3">
-        <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
+        <div className="flex items-center justify-between space-x-4 text-sm text-muted-foreground mb-3">
           <div className="flex items-center space-x-1">
             <User className="h-4 w-4" />
             <span>
