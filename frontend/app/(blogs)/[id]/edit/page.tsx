@@ -158,8 +158,14 @@ const EditBlogPage: React.FC = () => {
     }));
   };
 
+  const isContentEmpty = (content: string) => {
+    if (!content) return true;
+    const textContent = content.replace(/<[^>]*>/g, "").trim();
+    return textContent.length < 10;
+  };
+
   const handleSubmit = async () => {
-    if (!formData.title.trim() || !formData.description.trim()) {
+    if (!formData.title.trim() || isContentEmpty(formData.description)) {
       return;
     }
 
@@ -401,7 +407,7 @@ const EditBlogPage: React.FC = () => {
                   disabled={
                     updating ||
                     !formData.title.trim() ||
-                    !formData.description.trim()
+                    isContentEmpty(formData.description)
                   }
                 >
                   {updating ? (
