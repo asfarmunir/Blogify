@@ -38,28 +38,10 @@ const validateUserLogin = [
   handleValidationErrors
 ];
 
-const validateUserUpdate = [
-  body("name")
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage("Name must be between 2 and 50 characters"),
-  body("email")
-    .optional()
-    .isEmail()
-    .normalizeEmail()
-    .withMessage("Please provide a valid email"),
-  body("role")
-    .optional()
-    .isIn(["admin", "moderator", "user"])
-    .withMessage("Role must be admin, moderator, or user"),
-  handleValidationErrors
-];
 
 
 module.exports = {
   handleValidationErrors,
   validateUserRegistration,
   validateUserLogin,
-  validateUserUpdate,
 };

@@ -458,7 +458,7 @@ const CreateBlogPage = () => {
                             {uploadingImages ? "Uploading..." : "Upload Images"}
                           </p>
                           <p className="text-muted-foreground">
-                            Drag & drop or click to select files
+                            You can upload multiple images at once
                           </p>
                         </div>
                       </div>
