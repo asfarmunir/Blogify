@@ -174,23 +174,23 @@ const BlogCard = ({
 
 const BlogSkeleton = () => (
   <Card className="border-0 bg-gradient-to-br from-card via-card to-card/80 backdrop-blur-sm overflow-hidden">
-    <div className="h-48 bg-muted/50 animate-pulse" />
+    <div className="h-48 bg-muted animate-pulse" />
     <CardHeader className="pb-3">
       <div className="flex items-center space-x-4 mb-3">
-        <div className="h-4 bg-muted/50 rounded w-24 animate-pulse" />
-        <div className="h-4 bg-muted/50 rounded w-20 animate-pulse" />
+        <div className="h-4 bg-muted rounded w-24 animate-pulse" />
+        <div className="h-4 bg-muted rounded w-20 animate-pulse" />
       </div>
-      <div className="h-6 bg-muted/50 rounded w-3/4 animate-pulse" />
+      <div className="h-6 bg-muted rounded w-3/4 animate-pulse" />
     </CardHeader>
     <CardContent className="space-y-4">
       <div className="space-y-2">
-        <div className="h-4 bg-muted/50 rounded animate-pulse" />
-        <div className="h-4 bg-muted/50 rounded w-5/6 animate-pulse" />
-        <div className="h-4 bg-muted/50 rounded w-4/6 animate-pulse" />
+        <div className="h-4 bg-muted rounded animate-pulse" />
+        <div className="h-4 bg-muted rounded w-5/6 animate-pulse" />
+        <div className="h-4 bg-muted rounded w-4/6 animate-pulse" />
       </div>
       <div className="flex space-x-2">
-        <div className="h-6 bg-muted/50 rounded w-16 animate-pulse" />
-        <div className="h-6 bg-muted/50 rounded w-20 animate-pulse" />
+        <div className="h-6 bg-muted rounded w-16 animate-pulse" />
+        <div className="h-6 bg-muted rounded w-20 animate-pulse" />
       </div>
     </CardContent>
   </Card>
@@ -313,7 +313,7 @@ const BlogsPage = () => {
   }, [fetchBlogsData]);
 
   useEffect(() => {
-    dispatch(fetchPopularTags(10));
+    dispatch(fetchPopularTags(6));
   }, [dispatch]);
 
   const handlePageChange = (page: number) => {
