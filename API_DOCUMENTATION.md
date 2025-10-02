@@ -5,8 +5,7 @@ Complete API reference for the Blogify blogging platform.
 ## 🌐 Base URL
 
 ```
-Local Development: http://localhost:5000/api
-Production: https://your-domain.com/api
+Local Development: http://localhost:5001/api
 ```
 
 ## 🔐 Authentication
@@ -119,10 +118,10 @@ POST /api/auth/login
 
 #### Validate Token
 
-Validates the current JWT token and returns user data.
+verify the current JWT token and returns user data.
 
 ```http
-GET /api/auth/validate
+GET /api/auth/verify
 ```
 
 **Headers:**
@@ -640,7 +639,7 @@ All error responses follow this structure:
 ### Register User
 
 ```bash
-curl -X POST http://localhost:5000/api/auth/register \
+curl -X POST http://localhost:5001/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Test User",
@@ -652,7 +651,7 @@ curl -X POST http://localhost:5000/api/auth/register \
 ### Login User
 
 ```bash
-curl -X POST http://localhost:5000/api/auth/login \
+curl -X POST http://localhost:5001/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -663,7 +662,7 @@ curl -X POST http://localhost:5000/api/auth/login \
 ### Create Blog
 
 ```bash
-curl -X POST http://localhost:5000/api/blogs \
+curl -X POST http://localhost:5001/api/blogs \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
@@ -677,13 +676,13 @@ curl -X POST http://localhost:5000/api/blogs \
 ### Get All Blogs
 
 ```bash
-curl -X GET "http://localhost:5000/api/blogs?page=1&limit=10"
+curl -X GET "http://localhost:5001/api/blogs?page=1&limit=10"
 ```
 
 ### Get User Blogs
 
 ```bash
-curl -X GET http://localhost:5000/api/blogs/my-blogs \
+curl -X GET http://localhost:5001/api/blogs/my-blogs \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 

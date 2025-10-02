@@ -125,7 +125,7 @@ cp .env
 npm run dev
 ```
 
-Backend will run on `http://localhost:5000`
+Backend will run on `http://localhost:5001`
 
 ### 2. Frontend Setup
 
@@ -151,8 +151,8 @@ Frontend will run on `http://localhost:3000`
 Open your browser and navigate to:
 
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
-- **API Health Check**: http://localhost:5000/
+- **Backend API**: http://localhost:5001
+- **API Health Check**: http://localhost:5001/
 
 ## ⚙️ Environment Variables
 
@@ -168,7 +168,7 @@ MONGODB_URI=mongodb://localhost:27017/blogify
 JWT_SECRET=your-super-secure-jwt-secret-key
 
 # Server Configuration
-PORT=5000
+PORT=5001
 NODE_ENV=development
 
 # Frontend URL (for CORS)
@@ -179,7 +179,7 @@ CLIENT_URL=http://localhost:3000
 
 ```env
 # API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_API_URL=http://localhost:5001/api
 
 ```
 
@@ -207,7 +207,7 @@ npm run lint     # Run ESLint
 ### Base URL
 
 ```
-Local: http://localhost:5000/api
+Local: http://localhost:5001/api
 ```
 
 ### Authentication Endpoints
@@ -405,8 +405,8 @@ GET /api/blogs/tags/popular?limit=20
 # Check if MongoDB is running
 mongosh
 
-# Check if port 5000 is available
-lsof -i :5000
+# Check if port 5001 is available
+lsof -i :5001
 
 # Check environment variables
 cat backend/.env
