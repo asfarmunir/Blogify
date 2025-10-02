@@ -9,9 +9,7 @@ export function AuthLayout() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left side - Branding */}
       <div className="lg:flex-1 bg-gradient-to-br from-primary via-primary/90 to-[#3AC49D] relative overflow-hidden">
-        {/* Background pattern */}
         <div className="absolute inset-0 bg-cyber-grid opacity-10" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
 
@@ -48,7 +46,6 @@ export function AuthLayout() {
         </div>
       </div>
 
-      {/* Right side - Auth Forms */}
       <div className="lg:flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md">
           {isLogin ? (
