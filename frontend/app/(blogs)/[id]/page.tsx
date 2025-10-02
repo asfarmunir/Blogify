@@ -620,40 +620,6 @@ const BlogDetailsPage: React.FC = () => {
               />
             </div>
           </article>
-
-          {typeof blog.authorId === "object" &&
-            blog.authorId &&
-            "name" in blog.authorId && (
-              <div className="mb-12 glass-card p-8 rounded-2xl glow-on-hover float-animation">
-                <div className="flex items-start space-x-6">
-                  <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-primary via-primary to-accent rounded-full flex items-center justify-center shadow-lg shadow-primary/25">
-                    <User className="h-10 w-10 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      {blog.authorId.name}
-                    </h3>
-                    <p className="text-lg text-muted-foreground mb-4 font-medium">
-                      ✨ Writer & Content Creator
-                    </p>
-                    <p className="text-muted-foreground leading-relaxed">
-                      Passionate about sharing knowledge and insights through
-                      engaging content. Follow for more articles on technology,
-                      design, and innovation. Creating content that inspires and
-                      educates the community.
-                    </p>
-                    <div className="mt-4 flex space-x-2">
-                      <div className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full">
-                        🚀 Innovator
-                      </div>
-                      <div className="px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">
-                        📝 Storyteller
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
         </div>
       </div>
 

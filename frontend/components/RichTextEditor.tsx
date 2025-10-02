@@ -12,7 +12,6 @@ import { Extension } from "@tiptap/core";
 import { Button } from "@/components/ui/button";
 import "./rich-text-editor.css";
 
-// Custom FontSize extension
 const FontSize = Extension.create({
   name: "fontSize",
 
@@ -178,7 +177,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       onChange(editor.getHTML());
     },
     onSelectionUpdate: ({ editor }) => {
-      // Update current font size when selection changes
       const attrs = editor.getAttributes("textStyle");
       if (attrs.fontSize) {
         const size = attrs.fontSize.toString();
@@ -196,7 +194,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     },
   });
 
-  // Initialize font size state when editor is ready
   React.useEffect(() => {
     if (editor) {
       const attrs = editor.getAttributes("textStyle");
@@ -210,7 +207,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   }, [editor]);
 
-  // Update editor content when content prop changes
   React.useEffect(() => {
     if (editor && content !== undefined && editor.getHTML() !== content) {
       editor.commands.setContent(content);

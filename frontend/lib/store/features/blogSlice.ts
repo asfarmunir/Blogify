@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Types
 export interface BlogMedia {
   url: string;
   alt: string;
@@ -60,7 +59,6 @@ export interface BlogState {
   loadingTags: boolean;
 }
 
-// Cloudinary upload function
 export const uploadToCloudinary = async (file: File): Promise<string> => {
   const data = new FormData();
   data.append("file", file);
@@ -75,10 +73,8 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
   return response.data.secure_url;
 };
 
-// API Base URL
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-// Async Thunks
 export const uploadImages = createAsyncThunk(
   'blog/uploadImages',
   async (files: File[], { rejectWithValue }) => {
@@ -268,7 +264,6 @@ export const toggleLike = createAsyncThunk(
   }
 );
 
-// Initial state
 const initialState: BlogState = {
   blogs: [],
   userBlogs: [],
@@ -287,7 +282,6 @@ const initialState: BlogState = {
   loadingTags: false,
 };
 
-// Slice
 const blogSlice = createSlice({
   name: 'blog',
   initialState,
@@ -310,7 +304,6 @@ const blogSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    // Upload Images
     builder
       .addCase(uploadImages.pending, (state) => {
         state.uploadingImages = true;
@@ -324,7 +317,6 @@ const blogSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Create Blog
     builder
       .addCase(createBlog.pending, (state) => {
         state.creating = true;
@@ -342,7 +334,6 @@ const blogSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Fetch Blogs
     builder
       .addCase(fetchBlogs.pending, (state) => {
         state.loading = true;
@@ -359,7 +350,6 @@ const blogSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Get User Blogs
     builder
       .addCase(getUserBlogs.pending, (state) => {
         state.loadingUserBlogs = true;
@@ -375,7 +365,6 @@ const blogSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Fetch Blog By ID
     builder
       .addCase(fetchBlogById.pending, (state) => {
         state.loading = true;
@@ -390,7 +379,6 @@ const blogSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Update Blog
     builder
       .addCase(updateBlog.pending, (state) => {
         state.updating = true;
@@ -411,7 +399,6 @@ const blogSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Delete Blog
     builder
       .addCase(deleteBlog.pending, (state) => {
         state.deleting = true;
@@ -432,7 +419,6 @@ const blogSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Toggle Like
     builder
       .addCase(toggleLike.fulfilled, (state, action) => {
         const index = state.blogs.findIndex(blog => blog._id === action.payload._id);
@@ -447,7 +433,6 @@ const blogSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Fetch Popular Tags
     builder
       .addCase(fetchPopularTags.pending, (state) => {
         state.loadingTags = true;

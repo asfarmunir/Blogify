@@ -107,7 +107,7 @@ export const useAuth = () => {
       toast.success('Signed out successfully', { id: loadingToast })
       router.push('/auth')
     } catch (error) {
-      // Continue with logout even if API call fails
+
       console.error('Logout API call failed:', error)
       toast.success('Signed out successfully', { id: loadingToast })
     } finally {

@@ -1,6 +1,5 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'
 
-// Simple auth headers helper
 export const getAuthHeaders = () => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
   return {
@@ -9,7 +8,6 @@ export const getAuthHeaders = () => {
   }
 }
 
-// Simple API call with auth
 export const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,

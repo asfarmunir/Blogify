@@ -95,12 +95,6 @@ export const Navbar = () => {
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
                       <DropdownMenuItem asChild className="py-3">
-                        <Link href="/profile">
-                          <User className="mr-3 h-5 w-5" />
-                          <span className="text-base">Profile</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="py-3">
                         <Link href="/my-blogs">
                           <BookOpen className="mr-3 h-5 w-5" />
                           <span className="text-base">My Blogs</span>

@@ -57,14 +57,12 @@ const CreateBlogPage = () => {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [showPreview, setShowPreview] = useState(false);
 
-  // Check authentication
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/auth");
     }
   }, [isAuthenticated, router]);
 
-  // Clear error when component unmounts
   useEffect(() => {
     return () => {
       dispatch(clearError());
@@ -138,16 +136,13 @@ const CreateBlogPage = () => {
 
       await dispatch(createBlog(blogData)).unwrap();
 
-      // Show success message
       toast.success("Blog published successfully!");
 
-      // Reset form
       setTitle("");
       setDescription("");
       setTags([]);
       setMedia([]);
 
-      // Redirect to blogs page or dashboard
       router.push("/");
     } catch (error) {
       console.error("Failed to create blog:", error);
