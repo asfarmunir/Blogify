@@ -26,7 +26,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", require("./routes/auth"));
-app.use("/api/users", require("./routes/users"));
 app.use("/api/blogs", require("./routes/blogs"));
 
 app.use((err, req, res, next) => {
