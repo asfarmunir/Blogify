@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
 import { useAppSelector, useAppDispatch, type RootState } from '../lib/store'
-import { authApi } from '../lib/api'
+import { authApi } from '../lib/api/auth'
 import { 
   setLoading, 
   loginStart,
