@@ -36,7 +36,7 @@ export const Navbar = () => {
           <div className="flex items-center space-x-8">
             <Link href="/" className="flex items-center space-x-3">
               <BookOpen className="h-7 w-7 lg:h-8 lg:w-8 text-primary" />
-              <span className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary via-primary/70 to-primary bg-clip-text text-transparent">
+              <span className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary via-primary/70 to-blue-900 bg-clip-text text-transparent">
                 Blogify
               </span>
             </Link>
