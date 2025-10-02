@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.json({ 
-    message: "VisionDesk API is running!", 
+    message: "Blogify API is running!", 
     version: "1.0.0",
     timestamp: new Date().toISOString()
   });

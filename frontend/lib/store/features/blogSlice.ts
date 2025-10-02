@@ -24,8 +24,10 @@ export interface Blog {
 export interface BlogPagination {
   currentPage: number;
   totalPages: number;
-  totalBlogs: number;
-  limit: number;
+  totalBlogs?: number;
+  totalItems?: number;
+  itemsPerPage?: number;
+  limit?: number;
   hasNextPage: boolean;
   hasPrevPage: boolean;
 }
@@ -42,14 +44,17 @@ export interface PopularTag {
 
 export interface BlogState {
   blogs: Blog[];
+  userBlogs: Blog[];
   currentBlog: Blog | null;
   loading: boolean;
+  loadingUserBlogs: boolean;
   creating: boolean;
   updating: boolean;
   deleting: boolean;
   uploadingImages: boolean;
   error: string | null;
   pagination: BlogPagination | null;
+  userBlogsPagination: BlogPagination | null;
   filters: BlogFilters | null;
   popularTags: PopularTag[];
   loadingTags: boolean;
@@ -132,6 +137,33 @@ export const fetchBlogs = createAsyncThunk(
       const message = error && typeof error === 'object' && 'response' in error 
         ? (error as { response: { data: { message: string } } }).response?.data?.message
         : 'Failed to fetch blogs';
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const getUserBlogs = createAsyncThunk(
+  'blog/getUserBlogs',
+  async (params: { page?: number; limit?: number; search?: string; tag?: string; published?: boolean } = {}, { rejectWithValue }) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params.page) queryParams.append('page', params.page.toString());
+      if (params.limit) queryParams.append('limit', params.limit.toString());
+      if (params.search) queryParams.append('search', params.search);
+      if (params.tag) queryParams.append('tag', params.tag);
+      if (params.published !== undefined) queryParams.append('published', params.published.toString());
+
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE}/blogs/my-blogs?${queryParams}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      const message = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response: { data: { message: string } } }).response?.data?.message
+        : 'Failed to fetch user blogs';
       return rejectWithValue(message);
     }
   }
@@ -239,14 +271,17 @@ export const toggleLike = createAsyncThunk(
 // Initial state
 const initialState: BlogState = {
   blogs: [],
+  userBlogs: [],
   currentBlog: null,
   loading: false,
+  loadingUserBlogs: false,
   creating: false,
   updating: false,
   deleting: false,
   uploadingImages: false,
   error: null,
   pagination: null,
+  userBlogsPagination: null,
   filters: null,
   popularTags: [],
   loadingTags: false,
@@ -298,7 +333,7 @@ const blogSlice = createSlice({
       .addCase(createBlog.fulfilled, (state, action) => {
         state.creating = false;
         state.blogs.unshift(action.payload);
-        if (state.pagination) {
+        if (state.pagination && state.pagination.totalBlogs !== undefined) {
           state.pagination.totalBlogs += 1;
         }
       })
@@ -321,6 +356,22 @@ const blogSlice = createSlice({
       })
       .addCase(fetchBlogs.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Get User Blogs
+    builder
+      .addCase(getUserBlogs.pending, (state) => {
+        state.loadingUserBlogs = true;
+        state.error = null;
+      })
+      .addCase(getUserBlogs.fulfilled, (state, action) => {
+        state.loadingUserBlogs = false;
+        state.userBlogs = action.payload.data || [];
+        state.userBlogsPagination = action.payload.pagination || null;
+      })
+      .addCase(getUserBlogs.rejected, (state, action) => {
+        state.loadingUserBlogs = false;
         state.error = action.payload as string;
       });
 
@@ -372,7 +423,7 @@ const blogSlice = createSlice({
         if (state.currentBlog && state.currentBlog._id === action.payload) {
           state.currentBlog = null;
         }
-        if (state.pagination) {
+        if (state.pagination && state.pagination.totalBlogs !== undefined) {
           state.pagination.totalBlogs -= 1;
         }
       })

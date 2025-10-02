@@ -82,7 +82,7 @@ const EditBlogPage: React.FC = () => {
           currentBlog.authorId === userId);
 
       if (!isOwner) {
-        router.push(`/blogs/${blogId}`);
+        router.push(`/${blogId}`);
         return;
       }
 

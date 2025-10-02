@@ -8,10 +8,12 @@ const {
   updateBlog,
   deleteBlog,
   toggleLike,
+  getUserBlogs,
   getPopularTags
 } = require("../controllers/blogController");
 
 router.get("/", getAllBlogs);
+router.get("/my-blogs", authenticate, getUserBlogs);
 router.get("/tags/popular", getPopularTags);
 router.get("/:id", getBlogById);
 

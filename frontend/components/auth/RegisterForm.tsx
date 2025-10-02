@@ -15,6 +15,7 @@ import {
 } from "../ui/card";
 import { Icons } from "../ui/icons";
 import { cn, isValidEmail, isValidPassword } from "../../lib/utils";
+import { BookOpen } from "lucide-react";
 
 interface RegisterFormProps {
   className?: string;
@@ -94,15 +95,15 @@ export function RegisterForm({ className, onToggleMode }: RegisterFormProps) {
     <Card className={cn("w-full max-w-lg mx-auto", className)}>
       <CardHeader className="space-y-1 text-center">
         <div className="flex items-center justify-center mb-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-primary/80 to-secondary flex items-center justify-center">
-            <Icons.logo className="w-7 h-7 text-white" />
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary via-primary/80 to-blue-900 flex items-center justify-center">
+            <BookOpen className="h-7 w-7  text-white" />
           </div>
         </div>
         <CardTitle className="text-3xl font-bold tracking-tight">
           Create Account
         </CardTitle>
         <CardDescription className="text-base text-muted-foreground">
-          Join VisionDesk to manage your projects efficiently
+          Start your blogging journey with Blogify
         </CardDescription>
       </CardHeader>
 

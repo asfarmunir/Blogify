@@ -127,7 +127,7 @@ const BlogCard = ({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <p className="text-muted-foreground leading-relaxed line-clamp-3">
+        <p className="text-muted-foreground leading-relaxed line-clamp-1">
           {truncateText(excerpt, 120)}
         </p>
 
@@ -428,10 +428,10 @@ const BlogsPage = () => {
 
         {pagination && (
           <div className="mb-6 text-center text-sm text-muted-foreground">
-            Showing {(pagination.currentPage - 1) * pagination.limit + 1} to{" "}
+            Showing {(pagination.currentPage - 1) * pagination.limit! + 1} to{" "}
             {Math.min(
-              pagination.currentPage * pagination.limit,
-              pagination.totalBlogs
+              pagination.currentPage * pagination.limit!,
+              pagination.totalBlogs!
             )}{" "}
             of {pagination.totalBlogs} articles
             {(searchTerm || selectedTag) && (

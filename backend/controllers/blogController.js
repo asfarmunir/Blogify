@@ -247,6 +247,78 @@ const toggleLike = async (req, res) => {
   }
 };
 
+const getUserBlogs = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search, tag, published } = req.query;
+    const userId = req.user.id;
+    
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+    
+    // Build query for user's blogs
+    let query = { authorId: userId };
+    
+    // Filter by published status if specified
+    if (published !== undefined) {
+      query.isPublished = published === 'true';
+    }
+    
+    // Add search functionality
+    if (search) {
+      query.$text = { $search: search };
+    }
+    
+    // Add tag filter
+    if (tag) {
+      query.tags = { $in: [tag.toLowerCase()] };
+    }
+    
+    let findQuery = Blog.find(query)
+      .populate('authorId', 'name email')
+      .select('-__v');
+    
+    // Sort by search relevance if searching, otherwise by creation date
+    if (search) {
+      findQuery = findQuery
+        .select({ score: { $meta: "textScore" } })
+        .sort({ score: { $meta: "textScore" }, createdAt: -1 });
+    } else {
+      findQuery = findQuery.sort({ createdAt: -1 });
+    }
+    
+    // Execute queries in parallel for better performance
+    const [blogs, totalBlogs] = await Promise.all([
+      findQuery.skip(skip).limit(limitNum),
+      Blog.countDocuments(query)
+    ]);
+    
+    // Calculate pagination info
+    const totalPages = Math.ceil(totalBlogs / limitNum);
+    const hasNextPage = pageNum < totalPages;
+    const hasPrevPage = pageNum > 1;
+    
+    res.json({
+      success: true,
+      data: blogs,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalItems: totalBlogs,
+        itemsPerPage: limitNum,
+        hasNextPage,
+        hasPrevPage
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch user blogs",
+      error: error.message
+    });
+  }
+};
+
 const getPopularTags = async (req, res) => {
   try {
     const { limit = 20 } = req.query;
@@ -281,5 +353,6 @@ module.exports = {
   updateBlog,
   deleteBlog,
   toggleLike,
+  getUserBlogs,
   getPopularTags
 };

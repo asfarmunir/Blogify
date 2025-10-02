@@ -89,7 +89,7 @@ export const useAuth = () => {
         refreshToken: response.data.refreshToken
       }))
 
-      toast.success(`Welcome to VisionDesk, ${response.data.user.name}! 🎉`, { id: loadingToast })
+      toast.success(`Welcome to Blogify, ${response.data.user.name}! 🎉`, { id: loadingToast })
       return { success: true }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Registration failed'

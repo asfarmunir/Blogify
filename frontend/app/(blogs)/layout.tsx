@@ -18,14 +18,14 @@ const BlogsLayout = ({ children }: BlogsLayoutProps) => {
       </main>
       <footer className="border-t bg-muted/30 mt-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl 2xl:max-w-[110rem]">
-          <div className="flex flex-col items-center justify-between gap-6 py-12 lg:h-20 lg:flex-row lg:py-0">
+          <div className="flex flex-col items-center justify-between gap-6 py-6 lg:h-20 lg:flex-row lg:py-0">
             <div className="flex flex-col items-center gap-4 lg:flex-row lg:gap-6">
               <p className="text-center text-sm 2xl:text-base leading-relaxed text-muted-foreground lg:text-left">
                 Built with ❤️ by Blogify. Share your stories with the world.
               </p>
             </div>
             <div className="flex items-center space-x-6 text-sm 2xl:text-base text-muted-foreground">
-              <span>© 2024 Blogify</span>
+              <span>© 2025 Blogify</span>
             </div>
           </div>
         </div>

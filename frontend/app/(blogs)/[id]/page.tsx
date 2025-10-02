@@ -410,15 +410,15 @@ const BlogDetailsPage: React.FC = () => {
 
   if (error || !currentBlog) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
+      <div className="min-h-[80svh] bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="text-6xl text-muted-foreground">404</div>
           <h1 className="text-2xl font-bold text-foreground">Blog Not Found</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground pb-4">
             The blog post you&apos;re looking for doesn&apos;t exist or has been
             removed.
           </p>
-          <Link href="/">
+          <Link href="/" className="">
             <Button>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Blogs

@@ -18,30 +18,30 @@ export function AuthLayout() {
         <div className="relative z-10 flex flex-col justify-center items-center h-full p-8 text-white">
           <div className="max-w-md text-center space-y-6">
             <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
-              Project Management
+              Blogging
               <span className="block text-secondary">Reimagined</span>
             </h1>
 
             <p className="text-lg opacity-90 leading-relaxed">
-              Experience the future of team collaboration with VisionDesk&apos;s
-              intuitive interface and powerful features designed for modern
-              teams.
+              Share your thoughts with the world through Blogify&apos;s
+              intuitive writing platform. Create, publish, and engage with
+              beautiful blog posts that captivate your audience.
             </p>
 
             <div className="flex items-center justify-center space-x-6 pt-4">
               <div className="text-center">
-                <div className="text-2xl font-bold">1000+</div>
-                <div className="text-sm opacity-75">Active Projects</div>
+                <div className="text-2xl font-bold">5k+</div>
+                <div className="text-sm opacity-75">Blog Posts</div>
               </div>
               <div className="w-px h-12 bg-white/20" />
               <div className="text-center">
-                <div className="text-2xl font-bold">10k+</div>
-                <div className="text-sm opacity-75">Tasks Completed</div>
+                <div className="text-2xl font-bold">1k+</div>
+                <div className="text-sm opacity-75">Active Writers</div>
               </div>
               <div className="w-px h-12 bg-white/20" />
               <div className="text-center">
-                <div className="text-2xl font-bold">500+</div>
-                <div className="text-sm opacity-75">Happy Teams</div>
+                <div className="text-2xl font-bold">50k+</div>
+                <div className="text-sm opacity-75">Monthly Readers</div>
               </div>
             </div>
           </div>

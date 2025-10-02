@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { User, LogOut, PlusCircle, BookOpen, Settings } from "lucide-react";
+import { User, LogOut, PlusCircle, BookOpen } from "lucide-react";
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -49,10 +49,10 @@ export const Navbar = () => {
               </Link>
               {isAuthenticated && (
                 <Link
-                  href="/create"
+                  href="/my-blogs"
                   className="text-base lg:text-lg font-medium transition-colors hover:text-primary text-foreground"
                 >
-                  Write
+                  My Blogs
                 </Link>
               )}
             </div>
@@ -104,12 +104,6 @@ export const Navbar = () => {
                         <Link href="/my-blogs">
                           <BookOpen className="mr-3 h-5 w-5" />
                           <span className="text-base">My Blogs</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="py-3">
-                        <Link href="/settings">
-                          <Settings className="mr-3 h-5 w-5" />
-                          <span className="text-base">Settings</span>
                         </Link>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
