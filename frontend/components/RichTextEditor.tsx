@@ -76,7 +76,6 @@ import {
   Code,
   Quote,
   List,
-  ListOrdered,
   Link2,
   AlignLeft,
   AlignCenter,
@@ -315,13 +314,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               title="Bullet List"
             >
               <List className="h-4 w-4" />
-            </MenuButton>
-            <MenuButton
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              isActive={editor.isActive("orderedList")}
-              title="Numbered List"
-            >
-              <ListOrdered className="h-4 w-4" />
             </MenuButton>
             <MenuButton
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
